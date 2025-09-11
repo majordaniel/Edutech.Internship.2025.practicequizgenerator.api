@@ -1,0 +1,6 @@
+@Practice_Quiz_Generator_HostAddress = http://localhost:5058
+
+GET {{Practice_Quiz_Generator_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
