@@ -1,9 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36327.8 d17.14
+VisualStudioVersion = 17.14.36327.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Practice_Quiz_Generator", "Practice_Quiz_Generator\Practice_Quiz_Generator.csproj", "{A3F56FED-83BC-4454-99A1-A00B29E4C4B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Practice_Quiz_Generator.Domain", "Practice_Quiz_Generator.Domain\Practice_Quiz_Generator.Domain.csproj", "{CAEEB361-4418-4C13-957D-B13882204CCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Practice_Quiz_Generator.Infrastructure", "Practice_Quiz_Generator.Infrastructure\Practice_Quiz_Generator.Infrastructure.csproj", "{11C46F98-0D36-4398-99E7-938CEA6A4AF4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Practice_Quiz_Generator.Shared", "Practice_Quiz_Generator.Shared\Practice_Quiz_Generator.Shared.csproj", "{96601007-F472-4FC9-A157-A31EEFF6A2CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Practice_Quiz_Generator.Test", "Practice_Quiz_Generator.Test\Practice_Quiz_Generator.Test.csproj", "{D1A6EBDE-B4DC-4824-BA24-1198CE56E9F2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Practice_Quiz_Generator.Application", "Practice_Quiz_Generator.Application\Practice_Quiz_Generator.Application.csproj", "{E647FCCF-D1E5-4D1F-906F-2D78FAD929F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +25,26 @@ Global
 		{A3F56FED-83BC-4454-99A1-A00B29E4C4B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3F56FED-83BC-4454-99A1-A00B29E4C4B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3F56FED-83BC-4454-99A1-A00B29E4C4B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAEEB361-4418-4C13-957D-B13882204CCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAEEB361-4418-4C13-957D-B13882204CCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAEEB361-4418-4C13-957D-B13882204CCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAEEB361-4418-4C13-957D-B13882204CCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11C46F98-0D36-4398-99E7-938CEA6A4AF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11C46F98-0D36-4398-99E7-938CEA6A4AF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11C46F98-0D36-4398-99E7-938CEA6A4AF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11C46F98-0D36-4398-99E7-938CEA6A4AF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96601007-F472-4FC9-A157-A31EEFF6A2CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96601007-F472-4FC9-A157-A31EEFF6A2CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96601007-F472-4FC9-A157-A31EEFF6A2CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96601007-F472-4FC9-A157-A31EEFF6A2CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1A6EBDE-B4DC-4824-BA24-1198CE56E9F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1A6EBDE-B4DC-4824-BA24-1198CE56E9F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1A6EBDE-B4DC-4824-BA24-1198CE56E9F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1A6EBDE-B4DC-4824-BA24-1198CE56E9F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E647FCCF-D1E5-4D1F-906F-2D78FAD929F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E647FCCF-D1E5-4D1F-906F-2D78FAD929F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E647FCCF-D1E5-4D1F-906F-2D78FAD929F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E647FCCF-D1E5-4D1F-906F-2D78FAD929F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
