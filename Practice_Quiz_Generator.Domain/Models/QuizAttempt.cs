@@ -9,10 +9,10 @@ namespace Practice_Quiz_Generator.Domain.Models
         public int AttemptId { get; set; }
 
         [Required]
-        public int QuizId { get; set; } // FK to Quiz
+        public int QuizId { get; set; } 
 
         [Required]
-        public int UserId { get; set; } // FK to User
+        public int UserId { get; set; } 
 
         [Required]
         public int Score { get; set; }
@@ -21,9 +21,9 @@ namespace Practice_Quiz_Generator.Domain.Models
         public DateTime AttemptDate { get; set; }
 
         [Required]
-        public int TimeSpent { get; set; } // e.g., in seconds
+        public int TimeSpent { get; set; } 
 
-        public required string Answer { get; set; } // e.g., JSON of user answers
+        public required string Answer { get; set; }
 
         // Navigation properties
         public required Quiz Quiz { get; set; }

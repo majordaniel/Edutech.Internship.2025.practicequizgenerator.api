@@ -24,6 +24,6 @@ namespace Practice_Quiz_Generator.Domain.Models
 
         public string? Keywords { get; set; }
 
-        public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
+        public ICollection<Quiz> Quizzes { get; set; }
     }
 }

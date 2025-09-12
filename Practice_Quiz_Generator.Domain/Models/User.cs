@@ -21,7 +21,7 @@ namespace Practice_Quiz_Generator.Domain.Models
 
         [Required]
         [StringLength(50)]
-        public required string Role { get; set; } // e.g., "Student", "Admin"
+        public required string Role { get; set; }
 
         // Navigation properties for 1:N relationships
         public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();

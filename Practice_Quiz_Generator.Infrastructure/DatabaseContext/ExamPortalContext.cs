@@ -33,12 +33,15 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
             modelBuilder.Entity<QuizAttempt>()
                 .HasOne(qa => qa.Quiz)
                 .WithMany(q => q.QuizAttempts)
-                .HasForeignKey(qa => qa.QuizId);
+                .HasForeignKey(qa => qa.QuizId)
+                .OnDelete(DeleteBehavior.Cascade);
+
 
             modelBuilder.Entity<QuizAttempt>()
                 .HasOne(qa => qa.User)
                 .WithMany(u => u.QuizAttempts)
-                .HasForeignKey(qa => qa.UserId);
+                .HasForeignKey(qa => qa.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

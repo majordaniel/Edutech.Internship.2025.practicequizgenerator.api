@@ -9,22 +9,22 @@ namespace Practice_Quiz_Generator.Domain.Models
         public int QuizId { get; set; }
 
         [Required]
-        public int UserId { get; set; } // FK to User
+        public int UserId { get; set; }
 
         [Required]
-        public int ContentId { get; set; } // FK to Content
+        public int ContentId { get; set; }
 
         [Required]
-        public DateTime GeneratedDate { get; set; } // Formerly TGeneratedDate
+        public DateTime GeneratedDate { get; set; }
 
         [Required]
         [StringLength(50)]
-        public required string Status { get; set; } // e.g., "Draft", "Active", "Completed"
+        public required string Status { get; set; } 
 
         // Navigation properties
         public required User User { get; set; }
         public required Content Content { get; set; }
-        public ICollection<Question> Questions { get; set; } = new List<Question>();
-        public ICollection<QuizAttempt> QuizAttempts { get; set; } = new List<QuizAttempt>();
+        public ICollection<Question> Questions { get; set; } 
+        public ICollection<QuizAttempt> QuizAttempts { get; set; } 
     }
 }

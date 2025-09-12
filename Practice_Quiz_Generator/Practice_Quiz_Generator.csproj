@@ -7,16 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.20">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Controllers\" />
-    <Folder Include="Extensions\" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Practice_Quiz_Generator.Application\Practice_Quiz_Generator.Application.csproj" />
+    <ProjectReference Include="..\Practice_Quiz_Generator.Domain\Practice_Quiz_Generator.Domain.csproj" />
     <ProjectReference Include="..\Practice_Quiz_Generator.Infrastructure\Practice_Quiz_Generator.Infrastructure.csproj" />
+    <ProjectReference Include="..\Practice_Quiz_Generator.Shared\Practice_Quiz_Generator.Shared.csproj" />
   </ItemGroup>
 
 </Project>
