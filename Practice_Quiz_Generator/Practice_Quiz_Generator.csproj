@@ -15,4 +15,8 @@
     <Folder Include="Extensions\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Practice_Quiz_Generator.Infrastructure\Practice_Quiz_Generator.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

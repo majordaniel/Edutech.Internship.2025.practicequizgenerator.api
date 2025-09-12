@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Practice_Quiz_Generator.Domain.Models;
 
-namespace Practice_Quiz_Generator.Infrastructure.Data
+namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
 {
     public class ExamPortalContext : DbContext
     {
