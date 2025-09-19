@@ -20,18 +20,18 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             _userService = userService;
         }
 
-        public async Task GenerateQuizAsync(QuizGenerationRequestDto request)
+        public async Task<string> GenerateQuizAsync(QuizGenerationRequestDto request)
         {
             var studentId = _userService.GetCurrentUserId();
-            
+
             var user = await _context.Users.FindAsync(int.Parse(studentId));
             var content = await _context.Contents.FindAsync(request.ContentId); // Assuming you add ContentId to your DTO
 
             var questionsQuery = _context.Questions.AsQueryable();
 
-            if (request.Source == "UploadedMaterials" && !string.IsNullOrEmpty(request.DocumentId))
+            if (request.Source == "UploadedMaterials" && !request.DocumentId.HasValue)
             {
-                questionsQuery = questionsQuery.Where(q => q.DocumentId == request.DocumentId);
+                questionsQuery = questionsQuery.Where(q => q.DocumentId.ToString() == request.DocumentId.ToString());
             }
             else
             {
@@ -52,16 +52,18 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             {
                 User = user,
                 Content = content,
-                
-                UserId = int.Parse(studentId),
-                ContentId = request.ContentId,
+
+                UserId = user?.Id.ToString() ?? throw new InvalidOperationException("User not found"),
+                ContentId = request.ContentId.ToString(),
                 GeneratedDate = DateTime.UtcNow,
                 Status = "Generated",
                 Questions = selectedQuestions
             };
-            
+
             _context.Quizzes.Add(newQuiz);
             await _context.SaveChangesAsync();
+
+            return newQuiz.Id.ToString();
         }
     }
 }

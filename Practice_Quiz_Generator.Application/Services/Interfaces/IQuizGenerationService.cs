@@ -5,6 +5,6 @@ namespace Practice_Quiz_Generator.Application.Services.Interfaces
 {
     public interface IQuizGenerationService
     {
-        Task GenerateQuizAsync(QuizGenerationRequestDto request);
+        Task<string> GenerateQuizAsync(QuizGenerationRequestDto request);
     }
 }

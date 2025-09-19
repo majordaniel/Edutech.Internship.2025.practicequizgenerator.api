@@ -10,9 +10,10 @@ namespace Practice_Quiz_Generator.Infrastructure.Configurations
         {
             // Relationship: A Question has one Quiz, and a Quiz can have many Questions.
             builder.HasOne(q => q.Quiz)
-                   .WithMany(quiz => quiz.Questions)
-                   .HasForeignKey(q => q.QuizId)
-                   .IsRequired();
+                    .WithMany(quiz => quiz.Questions)
+                    .HasForeignKey(q => q.QuizId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
         }
     }
 }

@@ -7,8 +7,8 @@ namespace Practice_Quiz_Generator.Shared.DTOs.Request
         public int NumberOfQuestions { get; set; }
         public string Source { get; set; }
         // public string? DocumentId { get; set; }
-        public string? DocumentId { get; set; }
+        public Guid? DocumentId { get; set; }
 
-        public required int ContentId { get; set; }
+        public required Guid ContentId { get; set; }
     }
 }

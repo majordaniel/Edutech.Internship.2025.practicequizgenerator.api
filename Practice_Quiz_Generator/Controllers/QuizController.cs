@@ -2,13 +2,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Shared.DTOs.Request;
+using Practice_Quiz_Generator.Shared.DTOs.Response;
 using System.Threading.Tasks;
 
 namespace Practice_Quiz_Generator.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    // [Authorize]
     public class QuizController : ControllerBase
     {
         private readonly IQuizValidationService _quizValidationService;
@@ -16,12 +17,18 @@ namespace Practice_Quiz_Generator.Controllers
         private readonly IUserService _userService;
         private readonly IStudentCourseService _studentCourseService;
 
-        public QuizController(IQuizValidationService quizService, IQuizGenerationService quizGenerationService, IUserService userService, IStudentCourseService studentCourseService)
+        private readonly IQuizSetupService _quizSetupService;
+
+        private readonly IQuizSubmissionService _quizSubmissionService;
+
+        public QuizController(IQuizValidationService quizService, IQuizGenerationService quizGenerationService, IUserService userService, IStudentCourseService studentCourseService, IQuizSetupService quizSetupService, IQuizSubmissionService quizSubmissionService)
         {
             _quizValidationService = quizService;
             _quizGenerationService = quizGenerationService;
             _userService = userService;
             _studentCourseService = studentCourseService;
+            _quizSubmissionService = quizSubmissionService;
+            _quizSetupService = quizSetupService;
         }
 
         [HttpPost("generate")]
@@ -34,9 +41,8 @@ namespace Practice_Quiz_Generator.Controllers
                 return BadRequest("Invalid quiz generation request.");
             }
 
-            await _quizGenerationService.GenerateQuizAsync(request);
-
-            return Accepted(new { quizRequestId = Guid.NewGuid().ToString() });
+            var quizRequestId = await _quizGenerationService.GenerateQuizAsync(request);
+            return Accepted(new { quizRequestId });
         }
 
         // This is the new endpoint for the quiz setup form.
@@ -44,25 +50,27 @@ namespace Practice_Quiz_Generator.Controllers
         public async Task<IActionResult> GetQuizSetupData()
         {
             var studentId = _userService.GetCurrentUserId();
-            
-            // Get the list of courses from the database.
-            var studentCourses = await _studentCourseService.GetStudentCourseIdsAsync(studentId);
+            var setupData = await _quizSetupService.GetQuizSetupDataAsync(studentId);
 
-            // Hardcoded static data for the form.
-            var availableQuestionTypes = new List<string> { "MultipleChoice", "Theory" };
-            var availableSources = new List<string> { "PastExams", "UploadedMaterials" };
-            const int minQuestions = 5;
-            const int maxQuestions = 50;
+            return Ok(setupData);
+        }
 
-            // Return a single object with all the data.
-            return Ok(new 
+        [HttpPost("submit")]
+        [ProducesResponseType(typeof(QuizResultResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> SubmitQuiz([FromBody] QuizSubmissionDto submissionDto)
+        {
+            if (submissionDto == null || submissionDto.Answers.Count() == 0)
             {
-                Courses = studentCourses,
-                QuestionTypes = availableQuestionTypes,
-                Sources = availableSources,
-                MinQuestions = minQuestions,
-                MaxQuestions = maxQuestions
-            });
+                return BadRequest("Submission must contain answers.");
+            }
+
+            // We assume the StudentId is set here, possibly from the JWT token
+            // For simplicity, we'll use the ID passed in the DTO for now.
+
+            var result = await _quizSubmissionService.SubmitAndGradeAsync(submissionDto);
+            
+            return Ok(result);
         }
     }
 }

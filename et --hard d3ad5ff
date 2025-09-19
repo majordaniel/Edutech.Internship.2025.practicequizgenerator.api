@@ -1,0 +1,21 @@
+[33mf0baeee[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mpraise-aribisala[m[33m)[m Commit
+[33md3ad5ff[m[33m ([m[1;31morigin/praise-aribisala[m[33m)[m Commit
+[33md4f8e1e[m commit
+[33m2fcd084[m Unit of Work Implementation
+[33mfa11c12[m faculty CRUD implementation
+[33m9f411d5[m super-admin configuration
+[33m772e28f[m commit
+[33mff36f19[m Commit
+[33mb0dab81[m refined entities for new migration/db-creation
+[33mc04ff6f[m update
+[33m572a73d[m dev branch creation
+[33ma5c3c71[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/Onyejekwe_C_Ebenezer[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m health check endpoint implementation
+[33m375c8d2[m database configuration set-up
+[33m82d3908[m commit
+[33m3bb7221[m commit
+[33m6fb5335[m commit
+[33m3ca5f44[m commit
+[33m36462b2[m commit
+[33m5b6a5e1[m project structure set-up
+[33m0208b84[m Add project files.
+[33mfb168f4[m Add .gitattributes and .gitignore.

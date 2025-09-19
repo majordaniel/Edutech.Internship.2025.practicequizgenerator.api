@@ -14,7 +14,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
 
         public async Task<bool> ValidateRequest(QuizGenerationRequestDto request, string studentId)
         {
-            if (request.Source == "UploadedMaterials" && string.IsNullOrEmpty(request.DocumentId))
+            if (request.Source == "UploadedMaterials" && !request.DocumentId.HasValue)
             {
                 return false; // DocumentId is required for UploadedMaterials
             }
