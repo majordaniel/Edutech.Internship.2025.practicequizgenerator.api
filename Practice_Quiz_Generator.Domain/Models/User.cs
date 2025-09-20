@@ -1,7 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection.Emit;
 
 namespace Practice_Quiz_Generator.Domain.Models
 {
@@ -9,7 +6,7 @@ namespace Practice_Quiz_Generator.Domain.Models
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string? OtherName { get; set; }
+        public string OtherName { get; set; }
         public string RegistrationNumber { get; set; }
         public string? DepartmentId { get; set; }
         public string? FacultyId { get; set; }

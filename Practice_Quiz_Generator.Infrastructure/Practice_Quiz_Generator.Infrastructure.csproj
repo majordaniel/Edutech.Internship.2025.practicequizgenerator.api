@@ -8,8 +8,7 @@
 
   <ItemGroup>
     <Folder Include="DatabaseContext\" />
-    <Folder Include="Repositories\Implementations\" />
-    <Folder Include="Repositories\Interfaces\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
   <ItemGroup>

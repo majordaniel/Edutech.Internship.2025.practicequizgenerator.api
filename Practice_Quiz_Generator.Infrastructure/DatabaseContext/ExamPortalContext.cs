@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Practice_Quiz_Generator.Domain.Models;
+using Practice_Quiz_Generator.Infrastructure.Configurations;
 
 namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
 {
-    public class ExamPortalContext : DbContext
+    public class ExamPortalContext : IdentityDbContext<User>
     {
 
         public DbSet<Faculty> Faculties { get; set; }
@@ -17,6 +19,17 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
         //public DbSet<QuizAttempt> QuizAttempts { get; set; }
 
         public ExamPortalContext(DbContextOptions<ExamPortalContext> options) : base(options) { }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            //modelBuilder.ApplyConfiguration(new SuperAdminConfiguration());
+            //modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            modelBuilder.ApplyConfiguration(new SuperAdminRoleConfiguration());
+
+        }
+
+
 
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
