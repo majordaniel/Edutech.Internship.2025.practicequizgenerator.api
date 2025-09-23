@@ -11,6 +11,5 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Interfaces
         void DeleteRange(IEnumerable<T> entities);
         Task CreateAsync(T entity);
         Task CreateManyAsync(IEnumerable<T> entity);
-        Task SaveChangesAync();
     }
 }

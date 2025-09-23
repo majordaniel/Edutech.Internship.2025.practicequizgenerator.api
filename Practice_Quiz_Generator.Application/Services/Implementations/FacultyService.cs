@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Domain.Models;
-using Practice_Quiz_Generator.Infrastructure.Repositories.Interfaces;
+using Practice_Quiz_Generator.Infrastructure.UOW;
 using Practice_Quiz_Generator.Shared.CustomItems.Response;
 using Practice_Quiz_Generator.Shared.DTOs.Request;
 using Practice_Quiz_Generator.Shared.DTOs.Response;
@@ -12,15 +12,14 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
 {
     public class FacultyService : IFacultyService
     {
-        private readonly IFacultyRepository _facultyRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public FacultyService(
-            IFacultyRepository facultyRepository,
-            ILogger<FacultyService> logger,
+            IUnitOfWork unitOfWork,
             IMapper mapper)
         {
-            _facultyRepository = facultyRepository;
+            _unitOfWork = unitOfWork;
 
             _mapper = mapper;
         }
@@ -37,8 +36,8 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 // Reminder --> Add check "IF faculty exist ie: Duplicate.
 
                 var newFaculty = _mapper.Map<Faculty>(facultyRequest);
-                await _facultyRepository.CreateAsync(newFaculty);
-                await _facultyRepository.SaveChangesAync();
+                await _unitOfWork.FacultyRepository.CreateAsync(newFaculty);
+                await _unitOfWork.SaveChangesAsync();
 
                 var facultyToReturn = _mapper.Map<FacultyResponseDto>(newFaculty);
                 return StandardResponse<FacultyResponseDto>.Success($"Faculty successfully created: {newFaculty.Name}", facultyToReturn);
@@ -51,13 +50,13 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             }
         }
 
-        // --> Bulk Faculty Upload
+        // Reminder --> Bulk Faculty Upload
 
         public async Task<StandardResponse<IEnumerable<FacultyResponseDto>>> GetAllFacultiesAsync()
         {
             try
             {
-                var faculties = await _facultyRepository.FindAll(false).ToListAsync();
+                var faculties = await _unitOfWork.FacultyRepository.FindAll(false).ToListAsync();
 
                 if (faculties == null || !faculties.Any())
                 {
@@ -83,7 +82,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                     return StandardResponse<FacultyResponseDto>.Failed("Id field cannot be empty");
                 }
 
-                var faculty = await _facultyRepository.FindFacultyById(id);
+                var faculty = await _unitOfWork.FacultyRepository.FindFacultyById(id);
 
                 if (faculty == null)
                 {
@@ -108,7 +107,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                     return StandardResponse<FacultyResponseDto>.Failed("Faculty name cannot be empty");
                 }
 
-                var faculty = await _facultyRepository.FindFacultyByName(name);
+                var faculty = await _unitOfWork.FacultyRepository.FindFacultyByName(name);
 
                 if (faculty == null)
                 {
@@ -138,15 +137,15 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                     return StandardResponse<FacultyResponseDto>.Failed("Faculty update failed");
                 }
 
-                var faculty = await _facultyRepository.FindFacultyById(id);
+                var faculty = await _unitOfWork.FacultyRepository.FindFacultyById(id);
                 if (faculty == null)
                 {
                     return StandardResponse<FacultyResponseDto>.Failed($"Faculty with Id {id} not found");
                 }
 
                 var updatedFaculty = _mapper.Map(facultyRequest, faculty);
-                _facultyRepository.Update(updatedFaculty);
-                await _facultyRepository.SaveChangesAync();
+                _unitOfWork.FacultyRepository.Update(updatedFaculty);
+                await _unitOfWork.SaveChangesAsync();
 
                 var facultyToReturn = _mapper.Map<FacultyResponseDto>(updatedFaculty);
                 return StandardResponse<FacultyResponseDto>.Success("Faculty successfully updated", facultyToReturn);
@@ -166,14 +165,14 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                     return StandardResponse<Faculty>.Failed("Id cannot be empty");
                 }
 
-                var faculty = await _facultyRepository.FindFacultyById(id);
+                var faculty = await _unitOfWork.FacultyRepository.FindFacultyById(id);
                 if (faculty == null)
                 {
                     return StandardResponse<Faculty>.Failed($"Faculty with Id {id} does not exist");
                 }
 
-                _facultyRepository.Delete(faculty);
-                await _facultyRepository.SaveChangesAync();
+                _unitOfWork.FacultyRepository.Delete(faculty);
+                await _unitOfWork.SaveChangesAsync();
 
                 return StandardResponse<Faculty>.Success("Faculty successfully deleted", faculty);
             }

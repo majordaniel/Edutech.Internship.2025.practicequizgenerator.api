@@ -48,10 +48,5 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
         {
              _context.Set<T>().Update(entity);
         }
-
-        public async Task SaveChangesAync()
-        {
-            await _context.SaveChangesAsync();
-        }
     }
 }
