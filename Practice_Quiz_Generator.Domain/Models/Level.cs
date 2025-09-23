@@ -2,7 +2,6 @@
 {
     public class Level : BaseEntity
     {
-        public string LevelId { get; set; }
         public string Code { get; set; }
         public int Year { get; set; }
 

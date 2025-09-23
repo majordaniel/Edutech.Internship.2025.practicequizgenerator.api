@@ -15,7 +15,7 @@ namespace Practice_Quiz_Generator.Domain.Models
         public DateTime? DateModified { get; set; }
         public string? CreatedBy { get; set; }
         public string? ModifiedBy { get; set; }
-        public bool IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; }
         public string? Status { get; set; }
       
         public Level CurrentLevel { get; set; }

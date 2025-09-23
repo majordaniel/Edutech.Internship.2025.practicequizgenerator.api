@@ -5,8 +5,15 @@ using System.Linq.Expressions;
 
 namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
 {
-    public class RepositoryBase<T>(ExamPortalContext _context) : IRepositoryBase<T> where T : class
+    public class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {
+        protected readonly ExamPortalContext _context;
+
+        public RepositoryBase(ExamPortalContext context)
+        {
+            _context = context;
+        }
+
 
         public async Task CreateAsync(T entity)
         {
@@ -39,7 +46,7 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
         }
         public void Update(T entity)
         {
-            _context.Set<T>().Update(entity);
+             _context.Set<T>().Update(entity);
         }
 
         public async Task SaveChangesAync()

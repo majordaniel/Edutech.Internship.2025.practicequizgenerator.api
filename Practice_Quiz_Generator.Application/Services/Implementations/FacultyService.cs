@@ -1,0 +1,186 @@
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Practice_Quiz_Generator.Application.Services.Interfaces;
+using Practice_Quiz_Generator.Domain.Models;
+using Practice_Quiz_Generator.Infrastructure.Repositories.Interfaces;
+using Practice_Quiz_Generator.Shared.CustomItems.Response;
+using Practice_Quiz_Generator.Shared.DTOs.Request;
+using Practice_Quiz_Generator.Shared.DTOs.Response;
+
+namespace Practice_Quiz_Generator.Application.Services.Implementations
+{
+    public class FacultyService : IFacultyService
+    {
+        private readonly IFacultyRepository _facultyRepository;
+        private readonly IMapper _mapper;
+
+        public FacultyService(
+            IFacultyRepository facultyRepository,
+            ILogger<FacultyService> logger,
+            IMapper mapper)
+        {
+            _facultyRepository = facultyRepository;
+
+            _mapper = mapper;
+        }
+
+        public async Task<StandardResponse<FacultyResponseDto>> CreateFaculty(FacultyRequestDto facultyRequest)
+        {
+            try
+            {
+                if (facultyRequest == null)
+                {
+                    return StandardResponse<FacultyResponseDto>.Failed("Faculty creation failed");
+                }
+
+                // Reminder --> Add check "IF faculty exist ie: Duplicate.
+
+                var newFaculty = _mapper.Map<Faculty>(facultyRequest);
+                await _facultyRepository.CreateAsync(newFaculty);
+                await _facultyRepository.SaveChangesAync();
+
+                var facultyToReturn = _mapper.Map<FacultyResponseDto>(newFaculty);
+                return StandardResponse<FacultyResponseDto>.Success($"Faculty successfully created: {newFaculty.Name}", facultyToReturn);
+            }
+
+
+            catch (Exception ex)
+            {
+                return StandardResponse<FacultyResponseDto>.Failed(ex.Message);
+            }
+        }
+
+        // --> Bulk Faculty Upload
+
+        public async Task<StandardResponse<IEnumerable<FacultyResponseDto>>> GetAllFacultiesAsync()
+        {
+            try
+            {
+                var faculties = await _facultyRepository.FindAll(false).ToListAsync();
+
+                if (faculties == null || !faculties.Any())
+                {
+
+                    return StandardResponse<IEnumerable<FacultyResponseDto>>.Failed("No faculties exist");
+                }
+
+                var facultiesReturned = _mapper.Map<IEnumerable<FacultyResponseDto>>(faculties);
+                return StandardResponse<IEnumerable<FacultyResponseDto>>.Success("Faculties successfully retrieved", facultiesReturned);
+            }
+            catch (Exception ex)
+            {
+                return StandardResponse<IEnumerable<FacultyResponseDto>>.Failed(ex.Message);
+            }
+        }
+
+        public async Task<StandardResponse<FacultyResponseDto>> GetFacultyByIdAsync(string id)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    return StandardResponse<FacultyResponseDto>.Failed("Id field cannot be empty");
+                }
+
+                var faculty = await _facultyRepository.FindFacultyById(id);
+
+                if (faculty == null)
+                {
+                    return StandardResponse<FacultyResponseDto>.Failed($"Faculty with Id {id} not found");
+                }
+
+                var facultyReturned = _mapper.Map<FacultyResponseDto>(faculty);
+                return StandardResponse<FacultyResponseDto>.Success("Faculty successfully retrieved", facultyReturned);
+            }
+            catch (Exception ex)
+            {
+                return StandardResponse<FacultyResponseDto>.Failed(ex.Message);
+            }
+        }
+
+        public async Task<StandardResponse<FacultyResponseDto>> GetFacultyByNameAsync(string name)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    return StandardResponse<FacultyResponseDto>.Failed("Faculty name cannot be empty");
+                }
+
+                var faculty = await _facultyRepository.FindFacultyByName(name);
+
+                if (faculty == null)
+                {
+                    return StandardResponse<FacultyResponseDto>.Failed($"Faculty with name {name} not found");
+                }
+
+                var facultyReturned = _mapper.Map<FacultyResponseDto>(faculty);
+                return StandardResponse<FacultyResponseDto>.Success("Faculty successfully retrieved", facultyReturned);
+            }
+            catch (Exception ex)
+            {
+                return StandardResponse<FacultyResponseDto>.Failed(ex.Message);
+            }
+        }
+
+        public async Task<StandardResponse<FacultyResponseDto>> UpdateFacultyAsync(string id, FacultyRequestDto facultyRequest)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    return StandardResponse<FacultyResponseDto>.Failed("Id cannot be empty");
+                }
+
+                if (facultyRequest == null)
+                {
+                    return StandardResponse<FacultyResponseDto>.Failed("Faculty update failed");
+                }
+
+                var faculty = await _facultyRepository.FindFacultyById(id);
+                if (faculty == null)
+                {
+                    return StandardResponse<FacultyResponseDto>.Failed($"Faculty with Id {id} not found");
+                }
+
+                var updatedFaculty = _mapper.Map(facultyRequest, faculty);
+                _facultyRepository.Update(updatedFaculty);
+                await _facultyRepository.SaveChangesAync();
+
+                var facultyToReturn = _mapper.Map<FacultyResponseDto>(updatedFaculty);
+                return StandardResponse<FacultyResponseDto>.Success("Faculty successfully updated", facultyToReturn);
+            }
+            catch (Exception ex)
+            {
+                return StandardResponse<FacultyResponseDto>.Failed(ex.Message);
+            }
+        }
+
+        public async Task<StandardResponse<Faculty>> DeleteFacultyAsync(string id)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    return StandardResponse<Faculty>.Failed("Id cannot be empty");
+                }
+
+                var faculty = await _facultyRepository.FindFacultyById(id);
+                if (faculty == null)
+                {
+                    return StandardResponse<Faculty>.Failed($"Faculty with Id {id} does not exist");
+                }
+
+                _facultyRepository.Delete(faculty);
+                await _facultyRepository.SaveChangesAync();
+
+                return StandardResponse<Faculty>.Success("Faculty successfully deleted", faculty);
+            }
+            catch (Exception ex)
+            {
+                return StandardResponse<Faculty>.Failed(ex.Message);
+            }
+        }
+    }
+}
