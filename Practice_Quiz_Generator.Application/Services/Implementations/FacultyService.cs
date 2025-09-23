@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
@@ -24,16 +25,24 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             _mapper = mapper;
         }
 
-        public async Task<StandardResponse<FacultyResponseDto>> CreateFaculty(FacultyRequestDto facultyRequest)
+        public async Task<StandardResponse<FacultyResponseDto>> CreateFacultyAsync(FacultyRequestDto facultyRequest)
         {
             try
             {
                 if (facultyRequest == null)
                 {
-                    return StandardResponse<FacultyResponseDto>.Failed("Faculty creation failed");
+                    return StandardResponse<FacultyResponseDto>.Failed("Invalid faculty request.Creation failed.");
                 }
 
-                // Reminder --> Add check "IF faculty exist ie: Duplicate.
+                var existingFaculty = await _unitOfWork.FacultyRepository
+                    .FindFacultyByName(facultyRequest.Name);
+
+                if (existingFaculty != null)
+                {
+                    return StandardResponse<FacultyResponseDto>.Failed(
+                        $"A faculty with the name '{facultyRequest.Name}' already exists."
+                    );
+                }
 
                 var newFaculty = _mapper.Map<Faculty>(facultyRequest);
                 await _unitOfWork.FacultyRepository.CreateAsync(newFaculty);

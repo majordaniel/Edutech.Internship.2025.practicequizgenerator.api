@@ -1,6 +1,6 @@
 ﻿namespace Practice_Quiz_Generator.Shared.DTOs.Request
 {
-    public class DepartmentRequestDto
+    public class CreateDepartmentRequestDto
     {
         public string Name { get; set; }
         public string Code { get; set; }

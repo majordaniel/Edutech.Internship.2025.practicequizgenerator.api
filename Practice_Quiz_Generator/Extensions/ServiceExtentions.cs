@@ -13,12 +13,16 @@ namespace Practice_Quiz_Generator.Extensions
             services.AddDbContext<ExamPortalContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
         }
 
-     
-            public static void ConfigureDependencyInjection(this IServiceCollection services)
-            {
+
+        public static void ConfigureDependencyInjection(this IServiceCollection services)
+        {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IFacultyService, FacultyService>();
-            }
+            services.AddScoped<IDepartmentService, DepartmentService>();
+            services.AddScoped<ICourseService, CourseService>();
+            services.AddScoped<ILevelService, LevelService>();
+            services.AddScoped<IStudentCourseService, StudentCourseService>();
+        }
 
         public static void ConfigureCors(this IServiceCollection services)
         {

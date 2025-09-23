@@ -1,4 +1,4 @@
-using Practice_Quiz_Generator.Application.ServiceConfiguration;
+using Practice_Quiz_Generator.Application.ServiceConfiguration.MapInitializer;
 using Practice_Quiz_Generator.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);

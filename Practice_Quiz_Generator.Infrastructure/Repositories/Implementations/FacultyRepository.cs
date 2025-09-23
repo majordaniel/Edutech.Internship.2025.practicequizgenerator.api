@@ -17,8 +17,8 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
 
         public async Task<Faculty> FindFacultyByName(string name)
         {
-            return await FindByCondition(f => f.Name.Contains(name), false)
-                .FirstOrDefaultAsync();
+            return await FindByCondition(f => f.Name.ToLower() == name.ToLower(), false)
+                 .FirstOrDefaultAsync();
         }
 
     }

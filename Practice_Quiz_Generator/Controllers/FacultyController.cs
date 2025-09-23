@@ -40,7 +40,7 @@ namespace Practice_Quiz_Generator.Controllers
         [HttpPost("createfaculty")]
         public async Task<IActionResult> CreateFaculty(FacultyRequestDto facultyRequest)
         {
-            var result = await _facultyService.CreateFaculty(facultyRequest);
+            var result = await _facultyService.CreateFacultyAsync(facultyRequest);
             return Ok(result);
         }
 
