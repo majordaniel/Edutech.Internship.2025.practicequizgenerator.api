@@ -1,52 +1,68 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Practice_Quiz_Generator.Application.Services;
-using Practice_Quiz_Generator.Domain.Models;
-using System.Security.Claims;
+using Practice_Quiz_Generator.Application.Services.Interfaces;
+using Practice_Quiz_Generator.Shared.DTOs.Request;
+using System.Threading.Tasks;
 
 namespace Practice_Quiz_Generator.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class QuizController : ControllerBase
     {
-        private readonly QuizService _quizService;
-        private readonly QuizGenerationService _quizGenerationService;
+        private readonly IQuizValidationService _quizValidationService;
+        private readonly IQuizGenerationService _quizGenerationService;
+        private readonly IUserService _userService;
+        private readonly IStudentCourseService _studentCourseService;
 
-        public QuizController(QuizService quizService, QuizGenerationService quizGenerationService)
+        public QuizController(IQuizValidationService quizService, IQuizGenerationService quizGenerationService, IUserService userService, IStudentCourseService studentCourseService)
         {
-            _quizService = quizService;
+            _quizValidationService = quizService;
             _quizGenerationService = quizGenerationService;
-        }
-
-        [HttpGet("form-config")]
-        public async Task<ActionResult<QuizFormConfigurationDto>> GetQuizFormConfiguration()
-        {
-            var config = await _quizService.GetQuizFormConfigurationAsync(User);
-            return Ok(config);
+            _userService = userService;
+            _studentCourseService = studentCourseService;
         }
 
         [HttpPost("generate")]
         public async Task<IActionResult> GenerateQuiz([FromBody] QuizGenerationRequestDto request)
         {
-            if (!ModelState.IsValid)
+            var studentId = _userService.GetCurrentUserId();
+
+            if (!await _quizValidationService.ValidateRequest(request, studentId))
             {
-                return BadRequest(ModelState);
+                return BadRequest("Invalid quiz generation request.");
             }
 
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = int.Parse(userIdClaim?.Value ?? "0");
-            var (isValid, message) = await _quizGenerationService.ValidateRequestAsync(request, userId);
+            await _quizGenerationService.GenerateQuizAsync(request);
 
-            if (!isValid)
+            return Accepted(new { quizRequestId = Guid.NewGuid().ToString() });
+        }
+
+        // This is the new endpoint for the quiz setup form.
+        [HttpGet("setup")]
+        public async Task<IActionResult> GetQuizSetupData()
+        {
+            var studentId = _userService.GetCurrentUserId();
+            
+            // Get the list of courses from the database.
+            var studentCourses = await _studentCourseService.GetStudentCourseIdsAsync(studentId);
+
+            // Hardcoded static data for the form.
+            var availableQuestionTypes = new List<string> { "MultipleChoice", "Theory" };
+            var availableSources = new List<string> { "PastExams", "UploadedMaterials" };
+            const int minQuestions = 5;
+            const int maxQuestions = 50;
+
+            // Return a single object with all the data.
+            return Ok(new 
             {
-                return BadRequest(message);
-            }
-
-            var quizRequestId = _quizGenerationService.EnqueueQuizGenerationRequest(request, userId);
-
-            return Accepted(new { quizRequestId = quizRequestId, message = "Quiz generation request has been accepted and is being processed." });
+                Courses = studentCourses,
+                QuestionTypes = availableQuestionTypes,
+                Sources = availableSources,
+                MinQuestions = minQuestions,
+                MaxQuestions = maxQuestions
+            });
         }
     }
 }

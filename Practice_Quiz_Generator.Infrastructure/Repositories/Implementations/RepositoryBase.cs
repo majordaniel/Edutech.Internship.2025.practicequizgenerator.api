@@ -1,0 +1,52 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Practice_Quiz_Generator.Infrastructure.DatabaseContext;
+using Practice_Quiz_Generator.Infrastructure.Repositories.Interfaces;
+using System.Linq.Expressions;
+
+namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
+{
+    public class RepositoryBase<T> : IRepositoryBase<T> where T : class
+    {
+        protected readonly ExamPortalContext _context;
+
+        public RepositoryBase(ExamPortalContext context)
+        {
+            _context = context;
+        }
+
+
+        public async Task CreateAsync(T entity)
+        {
+            await _context.Set<T>().AddAsync(entity);
+        }
+
+        public async Task CreateManyAsync(IEnumerable<T> entity)
+        {
+            await _context.Set<T>().AddRangeAsync(entity);
+        }
+
+        public void Delete(T entity)
+        {
+            _context.Set<T>().Remove(entity);
+        }
+
+        public void DeleteRange(IEnumerable<T> entities)
+        {
+            _context.Set<T>().RemoveRange(entities);
+        }
+
+        public IQueryable<T> FindAll(bool trackChanges)
+        {
+            return trackChanges ? _context.Set<T>() : _context.Set<T>().AsNoTracking();
+        }
+
+        public IQueryable<T> FindByCondition(Expression<Func<T, bool>> condition, bool trackChanges)
+        {
+            return trackChanges ? _context.Set<T>().Where(condition) : _context.Set<T>().Where(condition).AsNoTracking();
+        }
+        public void Update(T entity)
+        {
+             _context.Set<T>().Update(entity);
+        }
+    }
+}

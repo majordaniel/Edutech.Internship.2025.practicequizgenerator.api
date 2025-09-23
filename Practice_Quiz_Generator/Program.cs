@@ -1,14 +1,10 @@
-
-using Microsoft.EntityFrameworkCore;
+using Practice_Quiz_Generator.Application.ServiceConfiguration;
 using Practice_Quiz_Generator.Extensions;
-using Practice_Quiz_Generator.Infrastructure.DatabaseContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.ConfigureDatabase(builder.Configuration);
-builder.Services.AddScoped<QuizService>();
-builder.Services.AddScoped<QuizGenerationService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
