@@ -1,9 +1,12 @@
 ﻿using MailKit.Net.Smtp;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Shared.CustomItems.Response;
 using System.Net;
+using System.Text;
+using System.Web;
 
 namespace Practice_Quiz_Generator.Application.Services.Implementations
 {
@@ -77,15 +80,17 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
 
         public Task<string> GenerateEmailConfirmationLinkAsync(string email, string token, string scheme)
         {
-            var baseUrl = "https://localhost:7166/api/authentication/confirmemail";
-            var encodedToken = WebUtility.UrlEncode(token);
+            var baseUrl = "https://localhost:7166/api/auth/confirmemail";
+            //var encodedToken = WebUtility.UrlEncode(token);
+
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
             return Task.FromResult($"{baseUrl}?email={email}&token={encodedToken}");
         }
 
         public Task<string> GeneratePasswordResetLinkAsync(string email, string token, string scheme)
         {
-            var baseUrl = "https://localhost:7166/api/authentication/resetpassword";
+            var baseUrl = "https://localhost:7166/api/auth/resetpassword";
             var encodedToken = WebUtility.UrlEncode(token);
 
             return Task.FromResult($"{scheme}://{baseUrl}?email={email}&token={encodedToken}");
