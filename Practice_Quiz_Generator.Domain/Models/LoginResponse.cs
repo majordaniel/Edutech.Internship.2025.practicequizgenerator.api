@@ -6,7 +6,14 @@ using System.Threading.Tasks;
 
 namespace Practice_Quiz_Generator.Domain.Models
 {
-    internal class LoginResponse
+    public class LoginResponse
     {
+        public string Token { get; set; }
+        public int ExpiresIn { get; set; }
+
+        public string UserId {  get; set; }
+        public string Name { get; set; }
+        public string Role { get; set; }
+            
     }
 }
