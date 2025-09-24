@@ -26,14 +26,7 @@ namespace Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtens
                 Code = department.Code,
                 Description = department.Description,
                 HOD = department.HOD,
-                FacultyId = department.FacultyId,
-                DateCreated = department.DateCreated,
-                DateModified = department.DateModified,
-                CreatedBy = department.CreatedBy,
-                ModifiedBy = department.ModifiedBy,
-                Status = department.Status,
-                IsDeleted = department.IsDeleted,
-
+                FacultyId = department.FacultyId
             };
         }
 

@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtensions;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
-using Practice_Quiz_Generator.Domain.Models;
 using Practice_Quiz_Generator.Infrastructure.UOW;
 using Practice_Quiz_Generator.Shared.CustomItems.Response;
 using Practice_Quiz_Generator.Shared.DTOs.Request;

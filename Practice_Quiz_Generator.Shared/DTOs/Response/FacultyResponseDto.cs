@@ -6,5 +6,7 @@
         public string Code { get; set; }
         public string Dean { get; set; }
         public string Description { get; set; }
+        public DateTime DateCreated { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

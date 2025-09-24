@@ -9,6 +9,7 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
         IFacultyRepository FacultyRepository { get; }
         ILevelRepository LevelRepository { get; }
         IStudentCourseRepository StudentCourseRepository { get; }
+        IUserRepository UserRepository { get; }
         Task SaveChangesAsync();
     }
 }

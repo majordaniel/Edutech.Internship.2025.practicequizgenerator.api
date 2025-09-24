@@ -12,6 +12,7 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
         private IFacultyRepository _faultyRepository;
         private ILevelRepository _levelRepository;
         private IStudentCourseRepository _studentCourseRepository;
+        private IUserRepository _userRepository;
 
         public UnitOfWork(ExamPortalContext context)
         {
@@ -65,6 +66,16 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
                 if (_studentCourseRepository == null)
                     _studentCourseRepository = new StudentCourseRepository(_context);
                 return _studentCourseRepository;
+            }
+        }
+
+        public IUserRepository UserRepository
+        {
+            get
+            {
+                if(_userRepository == null)
+                    _userRepository = new UserRepository(_context);
+                return _userRepository;
             }
         }
 

@@ -9,6 +9,7 @@ builder.Services.ConfigureDependencyInjection();
 builder.Services.AddAutoMapper(cfg => { },
     typeof(MappingProfile)
 );
+builder.Services.ConfigureIdentity();
 builder.Services.ConfigureCors();
 
 builder.Services.AddControllers();

@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Practice_Quiz_Generator.Application.Services.Implementations;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
+using Practice_Quiz_Generator.Domain.Models;
 using Practice_Quiz_Generator.Infrastructure.DatabaseContext;
 using Practice_Quiz_Generator.Infrastructure.UOW;
 
@@ -22,6 +24,24 @@ namespace Practice_Quiz_Generator.Extensions
             services.AddScoped<ICourseService, CourseService>();
             services.AddScoped<ILevelService, LevelService>();
             services.AddScoped<IStudentCourseService, StudentCourseService>();
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IAuthService, AuthService>();
+        }
+
+        public static void ConfigureIdentity(this IServiceCollection services)
+        {
+            var builder = services.AddIdentity<User, IdentityRole>(i =>
+            {
+                i.Password.RequireDigit = true;
+                i.Password.RequireLowercase = false;
+                i.Password.RequireUppercase = false;
+                i.Password.RequireNonAlphanumeric = false;
+                i.Password.RequiredLength = 8;
+                i.User.RequireUniqueEmail = true;
+                i.SignIn.RequireConfirmedEmail = true;
+            })
+            .AddEntityFrameworkStores<ExamPortalContext>()
+            .AddDefaultTokenProviders();
         }
 
         public static void ConfigureCors(this IServiceCollection services)
