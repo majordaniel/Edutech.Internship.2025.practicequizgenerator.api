@@ -13,7 +13,7 @@ namespace Practice_Quiz_Generator.Service
     {
         public User Authenticate(string email, string password)
         {
-            var user = DummyUsers.user
+            var user = DummyUsers.User
                 .FirstOrDefault(u => u.Email == email && u.PasswordHash == password);
             return user;
         }
@@ -49,6 +49,54 @@ namespace Practice_Quiz_Generator.Service
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public string ForgotPassword(string email)
+        {
+            var user = DummyUsers.User.FirstOrDefault(u => u.Email == email);
+            if (user == null)
+            {
+                return null;
+            }
+
+            //generate reset token
+            var token = Guid.NewGuid().ToString();
+
+            //store it in password reset
+            PasswordResetStore.ResetTokens[email] = token;
+
+            //returns token. (for demo, this stimulates sending it by mail)
+            return token;
+        }
+
+        public bool ResetPassword(string email, string token, string newPassword)
+        {
+            // Validate if email has a stored token
+            if (!PasswordResetStore.ResetTokens.ContainsKey(email))
+            {
+                return false; // no reset request for this email
+            }
+
+            // Check if token matches
+            if (PasswordResetStore.ResetTokens[email] != token)
+            {
+                return false; 
+            }
+
+            // Find the user
+            var user = DummyUsers.User.FirstOrDefault(u => u.Email == email);
+            if (user == null)
+            {
+                return false; // no user with this email
+            }
+
+            // Update password
+            user.PasswordHash = newPassword;
+
+            // Invalidate token
+            PasswordResetStore.ResetTokens.Remove(email);
+
+            return true; 
         }
 
     }

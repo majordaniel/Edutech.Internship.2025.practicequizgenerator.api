@@ -47,7 +47,7 @@ namespace Practice_Quiz_Generator.Controllers
         [HttpGet("secure-test")]
         public IActionResult SecureTest()
         {
-            return Ok(new { message = "✅ You are authorized!" });
+            return Ok(new { message = "You are authorized!" });
         }
 
         //role based test
@@ -59,5 +59,41 @@ namespace Practice_Quiz_Generator.Controllers
             return Ok("You are an Admin!");
         }
 
+        //forgot password endpoint
+
+        [HttpPost("forgot-password")]
+        public IActionResult ForgotPassword([FromBody] string email)
+        {
+            var token = _authService.ForgotPassword(email);
+
+            if (token == null)
+            {
+                return NotFound(new { message = "Email not found" });
+            }
+
+         
+            return Ok(new { message = "Password reset token generated", token = token });
+        }
+
+
+        public class ResetPasswordRequest
+        {
+            public string Email { get; set; }
+            public string Token { get; set; }
+            public string NewPassword { get; set; }
+        }
+
+        [HttpPost("reset-password")]
+        public IActionResult ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            var success = _authService.ResetPassword(request.Email, request.Token, request.NewPassword);
+
+            if (!success)
+            {
+                return BadRequest(new { message = "Invalid or expired token" });
+            }
+
+            return Ok(new { message = "Password has been reset successfully" });
+        }
     }
 }

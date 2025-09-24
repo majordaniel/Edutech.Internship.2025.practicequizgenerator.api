@@ -4,7 +4,7 @@ namespace Practice_Quiz_Generator.DummyData
 {
     public  static class DummyUsers
     {
-        public static List<User> user = new List<User>
+        public static List<User> User = new List<User>
         {
             new User
             {
