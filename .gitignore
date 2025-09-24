@@ -365,3 +365,7 @@ FodyWeavers.xsd
 # Ignore sensitive configuration files
 Practice_Quiz_Generatorappsettings.json
 Practice_Quiz_Generatorappsettings.*.json
+/Practice_Quiz_Generator/appsettings.json
+/Practice_Quiz_Generator/appsettings.Development.json
+/Practice_Quiz_Generator.Infrastructure/Migrations
+/Practice_Quiz_Generator/appsettings.json

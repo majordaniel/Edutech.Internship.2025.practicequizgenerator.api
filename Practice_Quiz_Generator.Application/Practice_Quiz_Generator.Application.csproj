@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Services\Interfaces\" />
-    <Folder Include="Services\Implementations\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Practice_Quiz_Generator.Domain\Practice_Quiz_Generator.Domain.csproj" />
     <ProjectReference Include="..\Practice_Quiz_Generator.Infrastructure\Practice_Quiz_Generator.Infrastructure.csproj" />
     <ProjectReference Include="..\Practice_Quiz_Generator.Shared\Practice_Quiz_Generator.Shared.csproj" />
@@ -19,6 +14,12 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="15.0.1" />
+    <PackageReference Include="MailKit" Version="4.13.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.20" />
   </ItemGroup>
 
 </Project>
