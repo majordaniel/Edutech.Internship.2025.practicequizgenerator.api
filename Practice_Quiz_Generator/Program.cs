@@ -1,4 +1,5 @@
 using Practice_Quiz_Generator.Application.ServiceConfiguration.MapInitializer;
+using Practice_Quiz_Generator.Application.Services.Implementations;
 using Practice_Quiz_Generator.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,7 @@ builder.Services.AddAutoMapper(cfg => { },
 );
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureCors();
+builder.Services.AddHttpClient<LLMService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
