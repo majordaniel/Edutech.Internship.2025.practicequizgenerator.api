@@ -26,6 +26,9 @@ namespace Practice_Quiz_Generator.Extensions
             services.AddScoped<IStudentCourseService, StudentCourseService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IFileProcessingService, FileProcessingService>();
+            services.AddScoped<IQuizService, QuizService>();
+            //services.AddScoped<, >();
         }
 
         public static void ConfigureIdentity(this IServiceCollection services)
