@@ -4,7 +4,7 @@
     {
         public string QuestionType { get; set; } 
         public int NumberOfQuestions { get; set; }
-        public string QuestionSource { get; set; } 
+        public string QuestionSource { get; set; } //File upload
         public int Timer { get; set; }
         public string StudentId { get; set; }
         public string CourseId { get; set; }

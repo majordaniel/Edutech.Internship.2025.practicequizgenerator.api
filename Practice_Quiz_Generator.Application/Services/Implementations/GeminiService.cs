@@ -1,25 +1,27 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Practice_Quiz_Generator.Application.Services.Interfaces;
 using System.Text;
 using System.Text.Json;
 
 namespace Practice_Quiz_Generator.Application.Services.Implementations
 {
-    public class LLMService 
+    public class GeminiService : IGeminiService
     {
         private readonly HttpClient _httpClient;
-        private readonly IConfiguration _config;
-        private string _apiKey;
+        private readonly string _apiKey;
 
-        public LLMService(HttpClient httpClient, IConfiguration config)
+        public GeminiService(HttpClient httpClient, IConfiguration config)
         {
             _httpClient = httpClient;
-            _config = config;
+            _apiKey = config.GetSection("LLMSettings")["ApiKey"];
+
+            if (string.IsNullOrWhiteSpace(_apiKey))
+                throw new InvalidOperationException("Gemini API key is missing. Please check LLMSettings:ApiKey in configuration.");
         }
+
 
         public async Task<string> GetLLMResponseAsync(string prompt)
         {
-            _apiKey = _config.GetSection("LLMSettings")["ApiKey"];
-
             var requestBody = new
             {
                 contents = new[]
@@ -39,7 +41,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
 
             var request = new HttpRequestMessage(
                 HttpMethod.Post,
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
             );
 
             request.Headers.Add("X-goog-api-key", _apiKey);
@@ -52,8 +54,10 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
 
             var response = await _httpClient.SendAsync(request);
 
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
+                throw new HttpRequestException($"Error: {response.StatusCode}, {await response.Content.ReadAsStringAsync()}");
+            }
                 using var responseContent = await response.Content.ReadAsStreamAsync();
                 using var jsonDoc = await JsonDocument.ParseAsync(responseContent);
 
@@ -65,11 +69,6 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                     .GetString();
 
                 return text ?? "No response from LLM";
-            }
-            else
-            {
-                throw new HttpRequestException($"Error: { response.StatusCode }, { await response.Content.ReadAsStringAsync()}");
-            }
         }
     }
 }

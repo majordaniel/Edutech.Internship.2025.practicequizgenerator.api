@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Practice_Quiz_Generator.Application.Services.Implementations;
+using Practice_Quiz_Generator.Application.Services.Interfaces;
 
 namespace Practice_Quiz_Generator.Controllers
 {
@@ -7,9 +8,9 @@ namespace Practice_Quiz_Generator.Controllers
     [ApiController]
     public class LLMController : ControllerBase
     {
-        private readonly LLMService _llmService;
+        private readonly IGeminiService _llmService;
 
-        public LLMController(LLMService llmService)
+        public LLMController(IGeminiService llmService)
         {
             _llmService = llmService;
         }
@@ -23,7 +24,7 @@ namespace Practice_Quiz_Generator.Controllers
             try
             {
                 var result = await _llmService.GetLLMResponseAsync(prompt);
-                return Ok(new {Response = result });
+                return Ok(new { Response = result });
             }
             catch (Exception ex)
             {
