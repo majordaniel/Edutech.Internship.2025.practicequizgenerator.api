@@ -5,7 +5,7 @@ using Practice_Quiz_Generator.Shared.DTOs.Response;
 
 namespace Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtensions
 {
-    public static class UserMappingExtension
+    public static class UserMapping
     {
         public static User ToEntity(this CreateUserRequestDto userRequest)
         {

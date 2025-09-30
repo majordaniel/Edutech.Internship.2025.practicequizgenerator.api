@@ -9,7 +9,7 @@
         /*public int UserId { get; set; }*/
         public Quiz Quiz { get; set; }
         public Question Question { get; set; }
-        public Option SelectedOption { get; set; }
+        public QuizOption SelectedOption { get; set; }
         /*        public User User { get; set; }*/
     }
 }

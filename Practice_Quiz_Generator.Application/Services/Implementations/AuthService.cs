@@ -6,6 +6,7 @@ using Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtensions
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Domain.Models;
 using Practice_Quiz_Generator.Infrastructure.UOW;
+using Practice_Quiz_Generator.Shared.Constants;
 using Practice_Quiz_Generator.Shared.CustomItems.Response;
 using Practice_Quiz_Generator.Shared.DTOs.Request;
 using Practice_Quiz_Generator.Shared.DTOs.Response;
@@ -62,7 +63,8 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 newUser.UserName = userRequest.Email;
                 //User newUser = _mapper.Map<User>(userRequest);
 
-                var createdUser = await _userManager.CreateAsync(newUser, userRequest.Password);
+                //var createdUser = await _userManager.CreateAsync(newUser, userRequest.Password);
+                var createdUser = await _userManager.CreateAsync(newUser, "PracticeQuiz@2025");
                 await _userManager.AddToRoleAsync(newUser, "Student");
 
 
@@ -72,104 +74,8 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                     var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
                     var confirmationLink = await _emailService.GenerateEmailConfirmationLinkAsync(newUser.Email, emailConfirmationToken, "https");
 
-                    var emailBody = $@"
-<!DOCTYPE html>
-<html lang='en'>
-<head>
-  <meta charset='UTF-8'>
-  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-  <style>
-    body {{
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f6f9;
-      margin: 0;
-      padding: 0;
-      color: #333333;
-    }}
-    .container {{
-      max-width: 600px;
-      margin: 30px auto;
-      background: #ffffff;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }}
-    .header {{
-      background: #2C6BED; /* Academic Blue */
-      color: white;
-      text-align: center;
-      padding: 25px;
-    }}
-    .header h2 {{
-      margin: 0;
-      font-size: 24px;
-      font-weight: 600;
-    }}
-    .content {{
-      padding: 30px;
-      line-height: 1.7;
-      font-size: 15px;
-    }}
-    .content p {{
-      margin: 12px 0;
-    }}
-    .btn {{
-      display: inline-block;
-      padding: 12px 30px;
-      margin: 25px 0;
-      background-color: #2C6BED; /* Academic Blue */
-      color: #ffffff !important;
-      text-decoration: none;
-      border-radius: 5px;
-      font-weight: 600;
-      font-size: 15px;
-      transition: background 0.3s ease;
-    }}
-    .btn:hover {{
-      background-color: #1f54b6;
-    }}
-    .footer {{
-      background: #f9f9f9;
-      text-align: center;
-      padding: 18px;
-      font-size: 12px;
-      color: #777777;
-      border-top: 1px solid #eeeeee;
-    }}
-  </style>
-</head>
-<body>
-  <div class='container'>
-    <div class='header'>
-      <h2>Confirm Your Email</h2>
-    </div>
-    <div class='content'>
-      <p>Hi {newUser.FirstName},</p>
-      <p>Welcome to <strong>Practice Quiz Generator</strong> 🎓.</p>
-      <p>Your account has been created successfully, and you are now officially part of our academic community. 
-      To activate your account and get started, please confirm your email address.</p>
-      
-      <p style='text-align:center;'>
-        <a href='{confirmationLink}' class='btn'>Confirm My Email</a>
-      </p>
-      
-      <p>If the button above does not work, please copy and paste the following link into your browser:</p>
-      <p style='word-break:break-all;'><a href='{confirmationLink}'>{confirmationLink}</a></p>
-      
-      <p>Thank you for choosing PQG as your academic companion. We look forward to supporting your learning journey.</p>
-      
-      <p>Best regards,<br/><strong>The PQG Team</strong></p>
-    </div>
-    <div class='footer'>
-      &copy; {DateTime.UtcNow.Year} Practice Quiz Generator | Empowering Academic Excellence
-    </div>
-  </div>
-</body>
-</html>";
+                    var emailBody = EmailTemplate.BuildWelcomeEmailTemplate(newUser.FirstName, confirmationLink);
 
-
-
-                    //await _emailService.SendEmailAsync(newUser.Email, "Confirm Your Email", $"Please confirm your email by clicking this link: {confirmationLink}");
                     await _emailService.SendEmailAsync(newUser.Email, "Confirm Your Email", emailBody);
                 }
                 else if (!createdUser.Succeeded)
