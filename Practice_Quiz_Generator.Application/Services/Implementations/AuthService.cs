@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtensions;
@@ -240,13 +241,36 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 userReturned.CurrentLevelId = userLevel.Id;
 
                 return StandardResponse<UserResponseDto>.Success("User registered successfully. Please check your email for confirmation.", userReturned);
-            
+
             }
             catch (Exception ex)
             {
                 return StandardResponse<UserResponseDto>.Failed(ex.Message);
             }
         }
+
+
+        //public async Task<StandardResponse<int>> BulkRegisterUsersAsync(IFormFile file)
+        //{
+        //    try
+        //    {
+        //        if (file == null || file.Length == 0)
+        //        {
+        //            return StandardResponse<int>.Failed("Invalid file");
+        //        }
+
+
+
+        //        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StandardResponse<int>.Failed($"Bulk upload failed: {ex.Message}");
+        //    }
+        //}
+
 
         public async Task<StandardResponse<ConfirmEmailResponseDto>> ConfirmEmailAsync(string email, string token)
         {

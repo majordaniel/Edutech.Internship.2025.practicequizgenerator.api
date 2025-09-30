@@ -27,20 +27,6 @@ namespace Practice_Quiz_Generator.Controllers
             return Ok(result);
         }
 
-        //[HttpPost("register")]
-        //public async Task<IActionResult> Register([FromBody] CreateUserRequestDto dto)
-        //{
-        //    var response = await _authService.RegisterAsync(dto);
-        //    return StatusCode(response.StatusCode, response);
-        //}
-
-        //[HttpPost("forgotpassword")]
-        //public async Task<IActionResult> ForgotPassword([FromBody] string email)
-        //{
-        //    var response = await _authService.ForgotPasswordAsync(email);
-        //    return StatusCode(response.StatusCode, response);
-        //}
-
         [HttpGet("confirmemail")]
         public async Task<IActionResult> ConfirmEmail([FromQuery] string email, [FromQuery] string token)
         {
