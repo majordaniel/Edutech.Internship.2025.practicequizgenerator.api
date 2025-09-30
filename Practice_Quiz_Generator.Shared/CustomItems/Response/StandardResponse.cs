@@ -40,9 +40,9 @@ namespace Practice_Quiz_Generator.Shared.CustomItems.Response
         /// <param name="data"></param>
         /// <param name="statusCode"></param>
         /// <returns></returns>
-        public static StandardResponse<T> Success(string successMessage, T data, int statusCode = 00)
+        public static StandardResponse<T> Success(string message, T data)
         {
-            return new StandardResponse<T> { Succeeded = true, Message = successMessage, Data = data, StatusCode = statusCode };
+            return new StandardResponse<T> { Succeeded = true, Message = message, Data = data,};
         }
 
         /// <summary>
