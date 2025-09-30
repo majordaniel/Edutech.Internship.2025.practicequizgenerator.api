@@ -9,7 +9,7 @@ namespace Practice_Quiz_Generator.Infrastructure.Configurations
         public void Configure(EntityTypeBuilder<StudentCourse> builder)
         {
             builder.HasData(
-   
+
                 new StudentCourse
                 {
                     Id = "29f9dc7c-5b47-4b5d-8f21-0913e54fbb5d",

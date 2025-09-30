@@ -1,16 +1,42 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Practice_Quiz_Generator.Application.ServiceConfiguration.MapInitializer;
+using Practice_Quiz_Generator.Application.Services.Implementations;
+using Practice_Quiz_Generator.Application.Services.Interfaces;
+using Practice_Quiz_Generator.Domain.Models;
 using Practice_Quiz_Generator.Extensions;
+using Practice_Quiz_Generator.Infrastructure.DatabaseContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
+builder.Services.AddDbContext<ExamPortalContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+{
+    //configure password settings
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
+
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<ExamPortalContext>()
+.AddDefaultTokenProviders();
+
+
+builder.Services.AddScoped<IAuthService, AuthService>();
 // Add services to the container.
 builder.Services.ConfigureDatabase(builder.Configuration);
-builder.Services.ConfigureDependencyInjection();
+
 builder.Services.AddAutoMapper(cfg => { },
     typeof(MappingProfile)
 );
-builder.Services.ConfigureIdentity();
-builder.Services.ConfigureCors();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -29,6 +55,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowAll");
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

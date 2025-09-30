@@ -21,5 +21,11 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
             return await FindByCondition(u => u.Email == email, false)
                  .FirstOrDefaultAsync();
         }
+
+        public async Task<bool> UpdateAsync(User user)
+        {
+            _context.Users.Update(user);
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }
