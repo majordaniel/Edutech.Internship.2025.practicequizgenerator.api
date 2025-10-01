@@ -20,28 +20,26 @@ namespace Practice_Quiz_Generator.Controllers
 
         }
 
-        //[HttpPost("generatefromfile")]
-        //[Consumes("multipart/form-data")]
-        //public async Task<IActionResult> GenerateQuizFromFile([FromForm] QuizUploadRequestDto quizUploadRequest)
-        //{
-        //    if (quizUploadRequest.File == null || quizUploadRequest.File.Length == 0)
-        //        return BadRequest("No file uploaded");
+        [HttpPost("generatefromfile")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> GenerateQuizFromFile([FromForm] QuizUploadRequestDto quizUploadRequest)
+        {
+            if (quizUploadRequest.File == null || quizUploadRequest.File.Length == 0)
+                return BadRequest("No file uploaded");
 
-        //    var text = await _fileProcessingService.ExtractTextAsync(quizUploadRequest.File);
+            var text = await _fileProcessingService.ExtractTextAsync(quizUploadRequest.File);
 
-        //    var request = quizUploadRequest.ToQuizRequestDto();
+            var request = quizUploadRequest.ToQuizRequestDto();
+            var result = await _quizService.GenerateQuizAsync(request);
+            return Ok(result);
+        }
 
-
-        //    //var request = new QuizRequestDto
-        //    //{
-        //    //    NumberOfQuestions = dto.NumberOfQuestions,
-        //    //    UploadedText = text,
-        //    //    QuestionType = dto.QuestionType ?? "MCQ"
-        //    //};
-
-        //    var result = await _quizService.GenerateQuizAsync(request);
-        //    return Ok(result);
-        //}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetQuizById(string id)
+        {
+            var result = await _quizService.GetQuizByIdAsync(id);
+            return StatusCode(result.StatusCode, result);
+        }
 
     }
 }

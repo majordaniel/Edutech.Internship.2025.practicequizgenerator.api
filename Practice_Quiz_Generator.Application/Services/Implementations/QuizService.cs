@@ -20,18 +20,18 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<StandardResponse<QuizResponseDto>> GenerateQuizAsync(QuizRequestDto quizRequest)
+        public async Task<StandardResponse<CreateQuizResponseDto>> GenerateQuizAsync(QuizRequestDto quizRequest)
         {//Reminder -->> Separate concerns base on question type and source
             try
             {
                 if (quizRequest == null || string.IsNullOrWhiteSpace(quizRequest.UploadedText))
                 {
-                    return StandardResponse<QuizResponseDto>.Failed("Uploaded text cannot be empty");
+                    return StandardResponse<CreateQuizResponseDto>.Failed("Uploaded text cannot be empty");
                 }
 
                 if (quizRequest.NumberOfQuestions <= 5)
                 {
-                    return StandardResponse<QuizResponseDto>.Failed("Number of questions must be greater than 5");
+                    return StandardResponse<CreateQuizResponseDto>.Failed("Number of questions must be greater than 5");
                 }
                 var prompt = PromptTemplates.BuildQuizPrompt(
                 quizRequest.UploadedText,
@@ -46,7 +46,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
 
                 if (quizResponse.Questions == null || !quizResponse.Questions.Any())
                 {
-                    return StandardResponse<QuizResponseDto>.Failed("Failed to generate questions from AI");
+                    return StandardResponse<CreateQuizResponseDto>.Failed("Failed to generate questions from AI");
                 }
 
                 var course = await _unitOfWork.CourseRepository.FindCourseById(quizRequest.CourseId);
@@ -72,20 +72,95 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 };
 
                 await _unitOfWork.QuizRepository.CreateAsync(quiz);
-                await _unitOfWork.SaveChangesAsync();   
+                await _unitOfWork.SaveChangesAsync();
 
-                return StandardResponse<QuizResponseDto>.Success("Quiz generated successfully",
+                return StandardResponse<CreateQuizResponseDto>.Success("Quiz generated successfully",
                     quizResponse
 
                 );
             }
             catch (Exception ex)
             {
-                return StandardResponse<QuizResponseDto>.Failed($"{ex.Message}");
+                return StandardResponse<CreateQuizResponseDto>.Failed($"{ex.Message}");
             }
         }
 
-        public QuizResponseDto Parse(string rawResponse)
+        //public async Task<StandardResponse<QuizResponseDto>> GetQuizByIdAsync(string id)
+        //{
+        //    var quiz = await _unitOfWork.QuizRepository.GetQuizWithQuestions(id);
+        //    if (quiz == null)
+        //        return StandardResponse<QuizResponseDto>.Failed("Quiz not found");
+        //    int correctOptionIndex = 0;
+        //    var quizToReturn = new QuizResponseDto
+        //    {
+        //        Id = quiz.Id,
+        //        Title = quiz.Title,
+        //        Questions = (quiz.QuizQuestion ?? new List<QuizQuestion>())
+        //        .Select(q =>
+        //        {
+        //            int correctOptionIndex = -1;
+        //            new QuizQuestionResponseDto
+        //            {
+
+        //                QuestionText = q.QuestionText,
+        //                Options = (q.QuizOption ?? new List<QuizOption>())
+        //                    .Select(o => new QuizOptionResponseDto
+        //                    {
+        //                        Text = o.QuizOptionText,
+        //                        IsCorrect = o.IsCorrect
+        //                    }).ToList(),
+        //                CorrectOptionIndex = q.CorrectOptionIndex
+
+        //            };
+        //        }).ToList()
+            
+        //    };
+
+        //    return StandardResponse<QuizResponseDto>.Success("", quizToReturn);
+        //}
+
+        public async Task<StandardResponse<QuizResponseDto>> GetQuizByIdAsync(string id)
+        {
+            var quiz = await _unitOfWork.QuizRepository.GetQuizWithQuestions(id);
+            if (quiz == null)
+                return StandardResponse<QuizResponseDto>.Failed("Quiz not found");
+
+            var quizToReturn = new QuizResponseDto
+            {
+                Id = quiz.Id,
+                Title = quiz.Title,
+                Questions = (quiz.QuizQuestion ?? new List<QuizQuestion>())
+                    .Select(q =>
+                    {
+                        int correctOptionIndex = -1;
+
+                        var options = (q.QuizOption ?? new List<QuizOption>())
+                            .Select((o, i) =>
+                            {
+                                if (o.IsCorrect)
+                                    correctOptionIndex = i;
+
+                                return new QuizOptionResponseDto
+                                {
+                                    Text = o.QuizOptionText,
+                                    IsCorrect = o.IsCorrect
+                                };
+                            }).ToList();
+
+                        return new QuizQuestionResponseDto
+                        {
+                            QuestionText = q.QuestionText,
+                            Options = options,
+                            CorrectOptionIndex = correctOptionIndex
+                        };
+                    }).ToList()
+            };
+
+            return StandardResponse<QuizResponseDto>.Success("", quizToReturn);
+        }
+
+
+        public CreateQuizResponseDto Parse(string rawResponse)
         {
             try
             {
@@ -97,14 +172,14 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                     rawResponse = rawResponse.Trim('`', '\n', '\r');
                 }
 
-                var quizResponse = JsonSerializer.Deserialize<QuizResponseDto>(rawResponse,
+                var quizResponse = JsonSerializer.Deserialize<CreateQuizResponseDto>(rawResponse,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                return quizResponse ?? new QuizResponseDto { Questions = new List<QuizQuestionDto>() };
+                return quizResponse ?? new CreateQuizResponseDto { Questions = new List<QuizQuestionDto>() };
             }
             catch (JsonException)
             {
-                return new QuizResponseDto
+                return new CreateQuizResponseDto
                 {
                     Questions = new List<QuizQuestionDto>
             {

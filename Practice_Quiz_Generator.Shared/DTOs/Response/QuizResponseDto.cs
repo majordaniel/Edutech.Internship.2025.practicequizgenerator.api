@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using Practice_Quiz_Generator.Shared.DTOs.Request;
-
-namespace Practice_Quiz_Generator.Shared.DTOs.Response
+﻿namespace Practice_Quiz_Generator.Shared.DTOs.Response
 {
     public class QuizResponseDto
     {
-        public List<QuizQuestionDto> Questions { get; set; } = new();
+        public string Id { get; set; }
+        public string? Title { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public ICollection<QuizQuestionResponseDto> Questions { get; set; } = new List<QuizQuestionResponseDto>();
     }
 }
