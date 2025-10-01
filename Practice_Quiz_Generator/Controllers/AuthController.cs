@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Shared.DTOs.Request;
+using Practice_Quiz_Generator.Shared.DTOs.Response;
 
 namespace Practice_Quiz_Generator.Controllers
 {
@@ -26,9 +27,22 @@ namespace Practice_Quiz_Generator.Controllers
         [HttpGet("confirmemail")]
         public async Task<IActionResult> ConfirmEmail([FromQuery] string email, [FromQuery] string token)
         {
-            var response = await _authService.ConfirmEmailAsync(email, token);
-            return StatusCode(response.StatusCode, response);
+            var result = await _authService.ConfirmEmailAsync(email, token);
+            return StatusCode(result.StatusCode, result);
         }
 
+        //[HttpPost("login")]
+        //public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+        //{
+        //    var result = await _authService.LoginAsync(request);
+        //    return Ok(result);
+        //}
+
+        //[HttpPost("refresh")]
+        //public async Task<IActionResult> Refresh([FromBody] TokenDto tokenDto)
+        //{
+        //    var result = await _authService.RefreshTokenAsync(tokenDto);
+        //    return Ok(result);
+        //}
     }
 }

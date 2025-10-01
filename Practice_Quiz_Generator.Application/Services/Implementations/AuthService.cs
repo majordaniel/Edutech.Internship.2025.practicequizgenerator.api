@@ -2,14 +2,19 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtensions;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Domain.Models;
 using Practice_Quiz_Generator.Infrastructure.UOW;
+using Practice_Quiz_Generator.Shared.Constants;
 using Practice_Quiz_Generator.Shared.CustomItems.Response;
 using Practice_Quiz_Generator.Shared.DTOs.Request;
 using Practice_Quiz_Generator.Shared.DTOs.Response;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Security.Claims;
 using System.Text;
 using System.Web;
 
@@ -21,14 +26,18 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
         private readonly UserManager<User> _userManager;
         private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
+        private readonly TokenValidationParameters _tokenValidationParameters;
         // Reminder --> Add logger 
 
-        public AuthService(UserManager<User> userManager, IMapper mapper, IUnitOfWork unitOfWork, IEmailService emailService)
+        public AuthService(UserManager<User> userManager, IMapper mapper, IUnitOfWork unitOfWork, IEmailService emailService, IConfiguration configuration, TokenValidationParameters tokenValidationParameters)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _mapper = mapper;
             _emailService = emailService;
+            _configuration = configuration;
+            _tokenValidationParameters = tokenValidationParameters;
         }
 
         public async Task<StandardResponse<UserResponseDto>> RegisterAsync(CreateUserRequestDto userRequest)
@@ -62,7 +71,8 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 newUser.UserName = userRequest.Email;
                 //User newUser = _mapper.Map<User>(userRequest);
 
-                var createdUser = await _userManager.CreateAsync(newUser, userRequest.Password);
+                //var createdUser = await _userManager.CreateAsync(newUser, userRequest.Password);
+                var createdUser = await _userManager.CreateAsync(newUser, "PracticeQuiz@2025");
                 await _userManager.AddToRoleAsync(newUser, "Student");
 
 
@@ -72,104 +82,8 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                     var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
                     var confirmationLink = await _emailService.GenerateEmailConfirmationLinkAsync(newUser.Email, emailConfirmationToken, "https");
 
-                    var emailBody = $@"
-<!DOCTYPE html>
-<html lang='en'>
-<head>
-  <meta charset='UTF-8'>
-  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-  <style>
-    body {{
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f6f9;
-      margin: 0;
-      padding: 0;
-      color: #333333;
-    }}
-    .container {{
-      max-width: 600px;
-      margin: 30px auto;
-      background: #ffffff;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }}
-    .header {{
-      background: #2C6BED; /* Academic Blue */
-      color: white;
-      text-align: center;
-      padding: 25px;
-    }}
-    .header h2 {{
-      margin: 0;
-      font-size: 24px;
-      font-weight: 600;
-    }}
-    .content {{
-      padding: 30px;
-      line-height: 1.7;
-      font-size: 15px;
-    }}
-    .content p {{
-      margin: 12px 0;
-    }}
-    .btn {{
-      display: inline-block;
-      padding: 12px 30px;
-      margin: 25px 0;
-      background-color: #2C6BED; /* Academic Blue */
-      color: #ffffff !important;
-      text-decoration: none;
-      border-radius: 5px;
-      font-weight: 600;
-      font-size: 15px;
-      transition: background 0.3s ease;
-    }}
-    .btn:hover {{
-      background-color: #1f54b6;
-    }}
-    .footer {{
-      background: #f9f9f9;
-      text-align: center;
-      padding: 18px;
-      font-size: 12px;
-      color: #777777;
-      border-top: 1px solid #eeeeee;
-    }}
-  </style>
-</head>
-<body>
-  <div class='container'>
-    <div class='header'>
-      <h2>Confirm Your Email</h2>
-    </div>
-    <div class='content'>
-      <p>Hi {newUser.FirstName},</p>
-      <p>Welcome to <strong>Practice Quiz Generator</strong> 🎓.</p>
-      <p>Your account has been created successfully, and you are now officially part of our academic community. 
-      To activate your account and get started, please confirm your email address.</p>
-      
-      <p style='text-align:center;'>
-        <a href='{confirmationLink}' class='btn'>Confirm My Email</a>
-      </p>
-      
-      <p>If the button above does not work, please copy and paste the following link into your browser:</p>
-      <p style='word-break:break-all;'><a href='{confirmationLink}'>{confirmationLink}</a></p>
-      
-      <p>Thank you for choosing PQG as your academic companion. We look forward to supporting your learning journey.</p>
-      
-      <p>Best regards,<br/><strong>The PQG Team</strong></p>
-    </div>
-    <div class='footer'>
-      &copy; {DateTime.UtcNow.Year} Practice Quiz Generator | Empowering Academic Excellence
-    </div>
-  </div>
-</body>
-</html>";
+                    var emailBody = EmailTemplate.BuildWelcomeEmailTemplate(newUser.FirstName, confirmationLink);
 
-
-
-                    //await _emailService.SendEmailAsync(newUser.Email, "Confirm Your Email", $"Please confirm your email by clicking this link: {confirmationLink}");
                     await _emailService.SendEmailAsync(newUser.Email, "Confirm Your Email", emailBody);
                 }
                 else if (!createdUser.Succeeded)
@@ -190,29 +104,6 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 return StandardResponse<UserResponseDto>.Failed(ex.Message);
             }
         }
-
-
-        //public async Task<StandardResponse<int>> BulkRegisterUsersAsync(IFormFile file)
-        //{
-        //    try
-        //    {
-        //        if (file == null || file.Length == 0)
-        //        {
-        //            return StandardResponse<int>.Failed("Invalid file");
-        //        }
-
-
-
-        //        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StandardResponse<int>.Failed($"Bulk upload failed: {ex.Message}");
-        //    }
-        //}
-
 
         public async Task<StandardResponse<ConfirmEmailResponseDto>> ConfirmEmailAsync(string email, string token)
         {
@@ -267,6 +158,128 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             return StandardResponse<string>.Success("Password has been reset successfully.", user.Email);
         }
 
+        public async Task<StandardResponse<TokenDto>> LoginAsync(LoginRequestDto request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
+            {
+                return StandardResponse<TokenDto>.Failed("Invalid login credentials");
+            }
+
+            var tokens = await GenerateTokensAsync(user);
+            return StandardResponse<TokenDto>.Success("Login successful", tokens);
+
+        }
+
+        public async Task<StandardResponse<TokenDto>> RefreshTokenAsync(TokenDto tokenDto)
+        {
+            var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
+            if (principal == null)
+                return StandardResponse<TokenDto>.Failed("Invalid access token");
+
+            var email = principal.FindFirstValue(ClaimTypes.Email);
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return StandardResponse<TokenDto>.Failed("User not found");
+
+            var storedRefreshToken = await _unitOfWork.RefreshTokenRepository
+                .GetValidRefreshTokenAsync(tokenDto.RefreshToken, user.Id);
+                //.FindByCondition(r => r.Token == tokenDto.RefreshToken && r.UserId == user.Id, false);
+
+            if (storedRefreshToken == null || storedRefreshToken.ExpiryDate <= DateTime.UtcNow || storedRefreshToken.IsUsed)
+                return StandardResponse<TokenDto>.Failed("Invalid refresh token");
+
+            // mark old refresh token as used
+            storedRefreshToken.IsUsed = true;
+            _unitOfWork.RefreshTokenRepository.Update(storedRefreshToken);
+            await _unitOfWork.SaveChangesAsync();
+
+            var newTokens = await GenerateTokensAsync(user);
+            return StandardResponse<TokenDto>.Success("Token refreshed", newTokens);
+
+        }
+
+
+        private async Task<TokenDto> GenerateTokensAsync(User user)
+        {
+            var claims = await GetClaims(user);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:securityKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var tokenOptions = new JwtSecurityToken(
+                issuer: _configuration["JwtSettings:validIssuer"],
+                audience: _configuration["JwtSettings:validAudience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(double.Parse(_configuration["JwtSettings:AccessTokenExpiryMinutes"])),
+                signingCredentials: creds
+            );
+
+
+            var accessToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+
+            
+            var refreshToken = new RefreshToken
+            {
+                Token = Guid.NewGuid().ToString(),
+                UserId = user.Id,
+                ExpiryDate = DateTime.UtcNow.AddDays(double.Parse(_configuration["JwtSettings:RefreshTokenExpiryDays"]))
+            };
+
+            await _unitOfWork.RefreshTokenRepository.CreateAsync(refreshToken);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new TokenDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken.Token
+            };
+        }
+
+        private async Task<List<Claim>> GetClaims(User user)
+        {
+            var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        };
+
+            var roles = await _userManager.GetRolesAsync(user);
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+            return claims;
+        }
+
+        private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:securityKey"])),
+                    ValidateLifetime = false,
+                    ValidIssuer = _configuration["JwtSettings:validIssuer"],
+                    ValidAudience = _configuration["JwtSettings:validAudience"]
+                };
+
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out var securityToken);
+
+                if (securityToken is not JwtSecurityToken jwtToken ||
+                    !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                    return null;
+
+                return principal;
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }
 

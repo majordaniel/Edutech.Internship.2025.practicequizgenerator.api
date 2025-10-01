@@ -15,22 +15,13 @@ builder.Services.AddAutoMapper(cfg => { },
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureCors();
 builder.Services.AddHttpClient<IGeminiService, GeminiService>();
+builder.Services.ConfigureJwt(builder.Configuration);
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-//builder.Services.AddSwaggerGen(c =>
-//{
-//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Practice Quiz API", Version = "v1" });
-
-//    // Handle file uploads in Swagger
-//    c.MapType<IFormFile>(() => new OpenApiSchema
-//    {
-//        Type = "string",
-//        Format = "binary"
-//    });
-//});
 
 
 

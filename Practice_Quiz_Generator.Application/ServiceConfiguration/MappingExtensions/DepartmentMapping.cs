@@ -4,7 +4,7 @@ using Practice_Quiz_Generator.Shared.DTOs.Response;
 
 namespace Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtensions
 {
-    public static class DepartmentMappingExtension
+    public static class DepartmentMapping
     {
 
         public static Department ToEntity(this CreateDepartmentRequestDto departmentRequest)
