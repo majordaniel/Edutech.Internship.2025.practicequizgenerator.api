@@ -38,8 +38,17 @@ namespace Practice_Quiz_Generator.Controllers
         public async Task<IActionResult> GetQuizById(string id)
         {
             var result = await _quizService.GetQuizByIdAsync(id);
-            return StatusCode(result.StatusCode, result);
+            //return StatusCode(result.StatusCode, result);
+            return Ok(result);
         }
+
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetAllUserQuizzes(string userId)
+        {
+            var result = await _quizService.GetAllUserQuizzesAsync(userId);
+            return Ok( result);
+        }
+
 
     }
 }

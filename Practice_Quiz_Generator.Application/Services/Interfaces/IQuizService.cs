@@ -9,5 +9,6 @@ namespace Practice_Quiz_Generator.Application.Services.Interfaces
         Task<StandardResponse<CreateQuizResponseDto>> GenerateQuizAsync(QuizRequestDto request);
         Task<StandardResponse<QuizResponseDto>> GetQuizByIdAsync(string id);
         CreateQuizResponseDto Parse(string rawResponse);
+        Task<StandardResponse<IEnumerable<QuizResponseDto>>> GetAllUserQuizzesAsync(string userId);
     }
 }

@@ -4,6 +4,7 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Interfaces
 {
     public interface IQuizRepository : IRepositoryBase<Quiz>
     {
-        Task<Quiz?> GetQuizWithQuestions(string quizId);
+        Task<Quiz> GetQuizWithQuestions(string quizId);
+        Task<IEnumerable<Quiz>> GetAllUserQuizzesWithQuestions(string userId);
     }
 }

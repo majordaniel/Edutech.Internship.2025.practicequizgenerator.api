@@ -159,6 +159,48 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             return StandardResponse<QuizResponseDto>.Success("", quizToReturn);
         }
 
+        public async Task<StandardResponse<IEnumerable<QuizResponseDto>>> GetAllUserQuizzesAsync(string userId)
+        {
+            //Reminder-->> user exit edge case
+            Console.WriteLine($"Incoming userId: '{userId}'");
+
+
+            var quizzes = await _unitOfWork.QuizRepository.GetAllUserQuizzesWithQuestions(userId);
+
+            if (quizzes == null || !quizzes.Any())
+                return StandardResponse<IEnumerable<QuizResponseDto>>.Failed("No quizzes found for this user");
+
+            var result = quizzes.Select(q => new QuizResponseDto
+            {
+                Id = q.Id,
+                Title = q.Title,
+                Questions = q.QuizQuestion.Select(question =>
+                {
+                    int correctOptionIndex = -1;
+
+                    var options = question.QuizOption.Select((o, i) =>
+                    {
+                        if (o.IsCorrect) correctOptionIndex = i;
+
+                        return new QuizOptionResponseDto
+                        {
+                            Text = o.QuizOptionText,
+                            IsCorrect = o.IsCorrect
+                        };
+                    }).ToList();
+
+                    return new QuizQuestionResponseDto
+                    {
+                        QuestionText = question.QuestionText,
+                        Options = options,
+                        CorrectOptionIndex = correctOptionIndex
+                    };
+                }).ToList()
+            }).ToList();
+
+            return StandardResponse<IEnumerable<QuizResponseDto>>.Success("Quizzes retrieved successfully", result);
+        }
+
 
         public CreateQuizResponseDto Parse(string rawResponse)
         {

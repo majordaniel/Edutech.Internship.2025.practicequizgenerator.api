@@ -15,7 +15,10 @@ namespace Practice_Quiz_Generator.Extensions
     {
         public static void ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ExamPortalContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ExamPortalContext>(options => 
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
+            .LogTo(Console.WriteLine, LogLevel.Information)
+           .EnableSensitiveDataLogging());
         }
 
 
