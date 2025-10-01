@@ -9,8 +9,6 @@ using Practice_Quiz_Generator.Infrastructure.UOW;
 using Practice_Quiz_Generator.Shared.CustomItems.Response;
 using Practice_Quiz_Generator.Shared.DTOs.Request;
 using Practice_Quiz_Generator.Shared.DTOs.Response;
-using Practice_Quiz_Generator.Shared.Helpers;
-using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Text;
 using System.Web;
@@ -23,70 +21,14 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
         private readonly UserManager<User> _userManager;
         private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
-        private readonly IJwtService _jwtService;
         // Reminder --> Add logger 
 
-        public AuthService(UserManager<User> userManager, IMapper mapper, IUnitOfWork unitOfWork, IEmailService emailService, IJwtService jwtService)
+        public AuthService(UserManager<User> userManager, IMapper mapper, IUnitOfWork unitOfWork, IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _mapper = mapper;
             _emailService = emailService;
-            _jwtService = jwtService;
-        }
-
-        public async Task<StandardResponse<LoginResponseDto>> LoginAsync(LoginRequestDto request)
-        {
-            try
-            {
-                // Find user by email 
-                var user = await _userManager.FindByEmailAsync(request.Email);
-                if (user == null)
-                {
-                    return StandardResponse<LoginResponseDto>.Failed(
-                        "Invalid credentials",
-                        (int)HttpStatusCode.Unauthorized);
-                }
-
-                // Verify password using UserManager
-                var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
-                if (!isPasswordValid)
-                {
-                    return StandardResponse<LoginResponseDto>.Failed(
-                        "Invalid credentials",
-                        (int)HttpStatusCode.Unauthorized);
-                }
-
-                // Check if user is active 
-                if (!user.IsActive)
-                {
-                    return StandardResponse<LoginResponseDto>.Failed(
-                        "Account is inactive",
-                        (int)HttpStatusCode.Forbidden);
-                }
-
-                // Generate JWT token
-                var token = _jwtService.GenerateToken(user);
-                var expiresAt = DateTime.UtcNow.AddMinutes(60); 
-
-                var response = new LoginResponseDto
-                {
-                    Token = token,
-                    ExpiresAt = expiresAt,
-                    UserId = user.Id,
-                    Name = $"{user.FirstName} {user.LastName}",
-                    Email = user.Email,
-                    Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "Student"
-                };
-
-                return StandardResponse<LoginResponseDto>.Success("Login Successful", response);
-            }
-            catch (Exception ex)
-            {
-                return StandardResponse<LoginResponseDto>.Failed(
-                    "An error occurred during login",
-                    (int)HttpStatusCode.InternalServerError);
-            }
         }
 
         public async Task<StandardResponse<UserResponseDto>> RegisterAsync(CreateUserRequestDto userRequest)
@@ -324,11 +266,6 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
 
             return StandardResponse<string>.Success("Password has been reset successfully.", user.Email);
         }
-
-
-
-
-      
 
     }
 }
