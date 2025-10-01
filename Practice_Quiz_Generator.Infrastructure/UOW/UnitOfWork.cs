@@ -14,6 +14,7 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
         private IStudentCourseRepository _studentCourseRepository;
         private IUserRepository _userRepository;
         private IQuizRepository _quizRepository;
+        private IRefreshTokenRepository _refreshTokenRepository;
 
         public UnitOfWork(ExamPortalContext context)
         {
@@ -89,6 +90,18 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
                 return _quizRepository; 
             } 
         }
+
+        public IRefreshTokenRepository RefreshTokenRepository 
+        { 
+            get 
+            { 
+                if (_refreshTokenRepository == null)
+                    _refreshTokenRepository = new RefreshTokenRepository(_context);
+                return _refreshTokenRepository; 
+            } 
+        }
+
+
 
         public async Task SaveChangesAsync()
         {

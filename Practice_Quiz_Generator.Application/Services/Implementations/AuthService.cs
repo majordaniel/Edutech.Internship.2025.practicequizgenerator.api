@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtensions;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Domain.Models;
@@ -10,7 +12,9 @@ using Practice_Quiz_Generator.Shared.Constants;
 using Practice_Quiz_Generator.Shared.CustomItems.Response;
 using Practice_Quiz_Generator.Shared.DTOs.Request;
 using Practice_Quiz_Generator.Shared.DTOs.Response;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Security.Claims;
 using System.Text;
 using System.Web;
 
@@ -22,14 +26,18 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
         private readonly UserManager<User> _userManager;
         private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
+        private readonly TokenValidationParameters _tokenValidationParameters;
         // Reminder --> Add logger 
 
-        public AuthService(UserManager<User> userManager, IMapper mapper, IUnitOfWork unitOfWork, IEmailService emailService)
+        public AuthService(UserManager<User> userManager, IMapper mapper, IUnitOfWork unitOfWork, IEmailService emailService, IConfiguration configuration, TokenValidationParameters tokenValidationParameters)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _mapper = mapper;
             _emailService = emailService;
+            _configuration = configuration;
+            _tokenValidationParameters = tokenValidationParameters;
         }
 
         public async Task<StandardResponse<UserResponseDto>> RegisterAsync(CreateUserRequestDto userRequest)
@@ -74,9 +82,9 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                     var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
                     var confirmationLink = await _emailService.GenerateEmailConfirmationLinkAsync(newUser.Email, emailConfirmationToken, "https");
 
-                    var emailBody = EmailTemplate.BuildWelcomeEmailTemplate(newUser.FirstName, confirmationLink);
+                    //var emailBody = EmailTemplate.BuildWelcomeEmailTemplate(newUser.FirstName, confirmationLink);
 
-                    await _emailService.SendEmailAsync(newUser.Email, "Confirm Your Email", emailBody);
+                    //await _emailService.SendEmailAsync(newUser.Email, "Confirm Your Email", emailBody);
                 }
                 else if (!createdUser.Succeeded)
                 {
@@ -173,6 +181,140 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             return StandardResponse<string>.Success("Password has been reset successfully.", user.Email);
         }
 
+        public async Task<StandardResponse<TokenDto>> LoginAsync(LoginRequestDto request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
+            {
+                return StandardResponse<TokenDto>.Failed("Invalid login credentials");
+            }
+
+            var tokens = await GenerateTokensAsync(user);
+            return StandardResponse<TokenDto>.Success("Login successful", tokens);
+
+        }
+
+        public async Task<StandardResponse<TokenDto>> RefreshTokenAsync(TokenDto tokenDto)
+        {
+            var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
+            if (principal == null)
+                return StandardResponse<TokenDto>.Failed("Invalid access token");
+
+            var email = principal.FindFirstValue(ClaimTypes.Email);
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return StandardResponse<TokenDto>.Failed("User not found");
+
+            var storedRefreshToken = await _unitOfWork.RefreshTokenRepository
+                .GetValidRefreshTokenAsync(tokenDto.RefreshToken, user.Id);
+                //.FindByCondition(r => r.Token == tokenDto.RefreshToken && r.UserId == user.Id, false);
+
+            if (storedRefreshToken == null || storedRefreshToken.ExpiryDate <= DateTime.UtcNow || storedRefreshToken.IsUsed)
+                return StandardResponse<TokenDto>.Failed("Invalid refresh token");
+
+            // mark old refresh token as used
+            storedRefreshToken.IsUsed = true;
+            _unitOfWork.RefreshTokenRepository.Update(storedRefreshToken);
+            await _unitOfWork.SaveChangesAsync();
+
+            var newTokens = await GenerateTokensAsync(user);
+            return StandardResponse<TokenDto>.Success("Token refreshed", newTokens);
+
+        }
+
+
+        private async Task<TokenDto> GenerateTokensAsync(User user)
+        {
+            var claims = await GetClaims(user);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:securityKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var tokenOptions = new JwtSecurityToken(
+                issuer: _configuration["JwtSettings:validIssuer"],
+                audience: _configuration["JwtSettings:validAudience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(double.Parse(_configuration["JwtSettings:AccessTokenExpiryMinutes"])),
+                signingCredentials: creds
+            );
+
+
+            var accessToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+
+            
+            var refreshToken = new RefreshToken
+            {
+                Token = Guid.NewGuid().ToString(),
+                UserId = user.Id,
+                ExpiryDate = DateTime.UtcNow.AddDays(double.Parse(_configuration["JwtSettings:RefreshTokenExpiryDays"]))
+            };
+
+            await _unitOfWork.RefreshTokenRepository.CreateAsync(refreshToken);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new TokenDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken.Token
+            };
+        }
+
+        private async Task<List<Claim>> GetClaims(User user)
+        {
+            var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        };
+
+            var roles = await _userManager.GetRolesAsync(user);
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+            return claims;
+        }
+
+        private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:securityKey"])),
+                    ValidateLifetime = false,
+                    ValidIssuer = _configuration["JwtSettings:validIssuer"],
+                    ValidAudience = _configuration["JwtSettings:validAudience"]
+                };
+
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out var securityToken);
+
+                if (securityToken is not JwtSecurityToken jwtToken ||
+                    !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                    return null;
+
+                return principal;
+            }
+            catch
+            {
+                return null;
+            }
+
+            //    var principal = tokenHandler.ValidateToken(token, _tokenValidationParameters, out var securityToken);
+            //    if (securityToken is not JwtSecurityToken jwtToken ||
+            //        !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            //        return null;
+
+            //    return principal;
+            //}
+            //catch
+            //{
+            //    return null;
+            //}
+        }
     }
 }
 
