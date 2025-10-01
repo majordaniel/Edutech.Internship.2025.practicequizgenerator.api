@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Practice_Quiz_Generator.Domain.Models;
+using System.Collections.Generic;
 
 namespace Practice_Quiz_Generator.Infrastructure.Configurations
 {
@@ -8,6 +10,7 @@ namespace Practice_Quiz_Generator.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
+            var hasher = new PasswordHasher<User>();
             builder.HasData(
 
                 new User
@@ -18,7 +21,8 @@ namespace Practice_Quiz_Generator.Infrastructure.Configurations
                     Email = "mary.okafor@example.com",
                     NormalizedEmail = "MARY.OKAFOR@EXAMPLE.COM",
                     EmailConfirmed = true,
-                    PasswordHash = "AQAAAAEAACcQAAAAENz5kl9o32MQEmc5cf3XKf+dYV7rm0UQkg=",
+                    //PasswordHash = "AQAAAAEAACcQAAAAENz5kl9o32MQEmc5cf3XKf+dYV7rm0UQkg=",
+                    PasswordHash = hasher.HashPassword(null, "Student#123"), //Student#111 new password
                     SecurityStamp = Guid.NewGuid().ToString(),
                     FirstName = "Mary",
                     LastName = "Okafor",

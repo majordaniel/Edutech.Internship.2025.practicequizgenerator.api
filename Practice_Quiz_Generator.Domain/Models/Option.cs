@@ -1,5 +1,8 @@
-﻿namespace Practice_Quiz_Generator.Domain.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Practice_Quiz_Generator.Domain.Models
 {
+    [NotMapped]
     public class Option
     {
         public string Text { get; set; }

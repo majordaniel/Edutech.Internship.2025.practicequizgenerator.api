@@ -13,26 +13,24 @@ namespace Practice_Quiz_Generator.Infrastructure.Configurations
         {
             public void Configure(EntityTypeBuilder<User> builder)
             {
-                // Disable cascade delete to prevent multiple cascade paths
+             
+
                 builder.HasOne(u => u.Department)
-                    .WithMany()
+                    .WithMany(d => d.Users)
                     .HasForeignKey(u => u.DepartmentId)
-                    .OnDelete(DeleteBehavior.Restrict); // Changed from Cascade to Restrict
+                    .OnDelete(DeleteBehavior.Restrict); 
 
                 builder.HasOne(u => u.Faculty)
-                    .WithMany()
+                    .WithMany(f => f.Users)
                     .HasForeignKey(u => u.FacultyId)
-                    .OnDelete(DeleteBehavior.Restrict); // Changed from Cascade to Restrict
+                    .OnDelete(DeleteBehavior.Restrict); 
 
                 builder.HasOne(u => u.CurrentLevel)
                     .WithMany()
                     .HasForeignKey(u => u.CurrentLevelId)
-                    .OnDelete(DeleteBehavior.Restrict); // Changed from Cascade to Restrict
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                builder.HasOne(u => u.Role)
-                    .WithMany()
-                    .HasForeignKey(u => u.RoleId)
-                    .OnDelete(DeleteBehavior.Restrict); // Changed from Cascade to Restrict
+               
             }
         }
 }

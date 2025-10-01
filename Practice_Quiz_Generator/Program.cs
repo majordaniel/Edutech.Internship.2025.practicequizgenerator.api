@@ -6,6 +6,7 @@ using Practice_Quiz_Generator.Application.Services.Implementations;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Domain.Models;
 using Practice_Quiz_Generator.Extensions;
+using Practice_Quiz_Generator.Infrastructure;
 using Practice_Quiz_Generator.Infrastructure.DatabaseContext;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,11 +36,11 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 // Add services to the container.
 builder.Services.ConfigureDatabase(builder.Configuration);
 
+
 builder.Services.AddAutoMapper(cfg => { },
     typeof(MappingProfile)
 );
-builder.Services.ConfigureIdentity();
-builder.Services.ConfigureCors();
+
 builder.Services.AddHttpClient<IGeminiService, GeminiService>();
 
 builder.Services.AddControllers();
@@ -62,10 +63,16 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    await RoleSeeder.SeedRolesAsync(roleManager);
+}
+
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
-    app.UseSwagger();
+app.UseSwagger();
     app.UseSwaggerUI();
 //}
 

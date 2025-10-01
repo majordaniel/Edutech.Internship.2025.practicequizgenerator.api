@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Domain.Models;
@@ -16,25 +17,33 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
     public class JwtService : IJwtService
     {
         private readonly JwtSettingsConfiguration _jwtSettings;
-
-        public JwtService(IOptions<JwtSettingsConfiguration> jwtSettings)
+        private readonly UserManager<User> _userManager;
+        public JwtService(IOptions<JwtSettingsConfiguration> jwtSettings, UserManager<User> userManager)
         {
             _jwtSettings = jwtSettings.Value;
+            _userManager = userManager;
         }
 
-        public string GenerateToken(User user)
+        public async Task<string> GenerateTokenAsync(User user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Key);
+
+            var roles = await _userManager.GetRolesAsync(user);
 
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
-                new Claim(ClaimTypes.Role, user.Role?.Name ?? "Student")
-           
+                
+
             };
+
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

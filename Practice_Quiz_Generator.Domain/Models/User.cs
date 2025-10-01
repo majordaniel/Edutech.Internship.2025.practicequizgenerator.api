@@ -16,7 +16,7 @@ namespace Practice_Quiz_Generator.Domain.Models
         public string OtherName { get; set; } = string.Empty;
         public string RegistrationNumber { get; set; } = string.Empty;
 
-        // Foreign Keys (all strings since they reference entities with string IDs)
+        // Foreign Keys 
         public string DepartmentId { get; set; } = string.Empty;
         public string FacultyId { get; set; } = string.Empty;
         public string CurrentLevelId { get; set; } = string.Empty;
@@ -42,9 +42,9 @@ namespace Practice_Quiz_Generator.Domain.Models
         public Level? CurrentLevel { get; set; }
         public Department? Department { get; set; }
         public Faculty? Faculty { get; set; }
-        public string? RoleId { get; set; }
+       
         
-        public Role? Role { get; set; }  // Changed from string to Role entity
+       
 
         public virtual ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
         public virtual ICollection<QuizAttempt> QuizAttempts { get; set; } = new List<QuizAttempt>();

@@ -14,7 +14,6 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
         public DbSet<Level> Levels { get; set; }
         public DbSet<Course> Courses { get; set; }
 
-        public DbSet<Role> Roles { get; set; }
         public DbSet<StudentCourse> StudentCourses { get; set; }
         //public DbSet<Content> Contents { get; set; }
         //public DbSet<Quiz> Quizzes { get; set; }
@@ -28,19 +27,16 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new SuperAdminConfiguration());
-            modelBuilder.ApplyConfiguration(new RoleConfiguration());
             //modelBuilder.ApplyConfiguration(new SuperAdminRoleConfiguration());
             modelBuilder.ApplyConfiguration(new FacultyConfiguration());
-            //modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
-            //modelBuilder.ApplyConfiguration(new CourseConfiguration());
+            modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
+            modelBuilder.ApplyConfiguration(new CourseConfiguration());
             modelBuilder.ApplyConfiguration(new LevelConfiguration());
             modelBuilder.ApplyConfiguration(new StudentConfiguration());
             modelBuilder.ApplyConfiguration(new StudentCourseConfiguration());
-            modelBuilder.ApplyConfiguration(new QuizConfiguration());
-            modelBuilder.ApplyConfiguration(new QuizAttemptConfiguration());
-            modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
-
-
+           // modelBuilder.ApplyConfiguration(new QuizConfiguration());
+            //modelBuilder.ApplyConfiguration(new QuizAttemptConfiguration());
+   
         }
 
 

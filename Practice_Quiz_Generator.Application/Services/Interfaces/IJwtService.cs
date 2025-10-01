@@ -9,7 +9,7 @@ namespace Practice_Quiz_Generator.Application.Services.Interfaces
 {
     public interface IJwtService
     {
-        string GenerateToken(User user);
+        Task<string> GenerateTokenAsync(User user);
         bool ValidateToken(string token);
         string? GetUserIdFromToken(string token);
     }

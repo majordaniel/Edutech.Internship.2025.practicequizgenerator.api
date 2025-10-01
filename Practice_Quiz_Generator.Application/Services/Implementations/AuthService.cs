@@ -66,7 +66,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 }
 
                 // Generate JWT token
-                var token = _jwtService.GenerateToken(user);
+                var token = await _jwtService.GenerateTokenAsync(user);
                 var expiresAt = DateTime.UtcNow.AddMinutes(60); 
 
                 var response = new LoginResponseDto
@@ -304,11 +304,25 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             }
 
             var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var resetLink = await _emailService.GeneratePasswordResetLinkAsync(user.Email, resetToken, "https");
+            user.ResetToken = resetToken;
+            user.ResetTokenExpiry = DateTime.UtcNow.AddHours(1);
 
+            //var resetLink = await _emailService.GeneratePasswordResetLinkAsync(user.Email, resetToken, "https");
+
+            //await _emailService.SendEmailAsync(user.Email, "Reset Your Password", $"Reset your password: <a href='{resetLink}'>Click here</a>");
+
+            //return StandardResponse<string>.Success("Password reset link has been sent to your email.", resetLink);
+
+            // Update the user
+            await _userManager.UpdateAsync(user);
+
+            // Send email
+            var resetLink = await _emailService.GeneratePasswordResetLinkAsync(user.Email, resetToken, "https");
             await _emailService.SendEmailAsync(user.Email, "Reset Your Password", $"Reset your password: <a href='{resetLink}'>Click here</a>");
 
-            return StandardResponse<string>.Success("Password reset link has been sent to your email.", resetLink);
+            return StandardResponse<string>.Success(
+                "Password reset link has been sent to your email.",
+                resetLink);
         }
 
         public async Task<StandardResponse<string>> ResetPasswordAsync(ResetPasswordRequestDto request)
