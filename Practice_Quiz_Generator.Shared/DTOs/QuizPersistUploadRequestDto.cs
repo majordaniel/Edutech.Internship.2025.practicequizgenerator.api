@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Practice_Quiz_Generator.Shared.DTOs
 {
-    public class QuizUploadRequestDto
+    public class QuizPersistUploadRequestDto
     {
         public string CourseId { get; set; }
         //public string? QuestionType { get; set; }
@@ -16,6 +16,7 @@ namespace Practice_Quiz_Generator.Shared.DTOs
         public int Timer { get; set; }
         public string UserId { get; set; }
         public IFormFile File { get; set; }
+       
 
     }
 }
