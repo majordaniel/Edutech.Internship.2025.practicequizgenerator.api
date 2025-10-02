@@ -9,7 +9,7 @@
         public string FacultyId { get; set; }
 
         public Faculty Faculty { get; set; }
-        public ICollection<User> User { get; set; }
-        public ICollection<Course> Course { get; set; }
+        public ICollection<User> Users { get; set; } = new List<User>();
+        public ICollection<Course> Courses { get; set; } = new List<Course>();
     }
 }
