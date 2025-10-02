@@ -31,32 +31,12 @@ namespace Practice_Quiz_Generator.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
-        {
-            var result = await _authService.LoginAsync(request);
-            return Ok(result);
-        }
-
-        [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var result = await _authService.ForgotPasswordAsync(request.Email);
-            return Ok(result);
-        }
-
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var result = await _authService.ResetPasswordAsync(request);
-            return StatusCode(result.StatusCode, result);
-        }
+        //[HttpPost("login")]
+        //public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+        //{
+        //    var result = await _authService.LoginAsync(request);
+        //    return Ok(result);
+        //}
 
         //[HttpPost("refresh")]
         //public async Task<IActionResult> Refresh([FromBody] TokenDto tokenDto)

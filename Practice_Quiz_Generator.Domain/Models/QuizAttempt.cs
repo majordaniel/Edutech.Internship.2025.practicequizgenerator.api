@@ -1,10 +1,8 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Practice_Quiz_Generator.Domain.Models
 {
-    [NotMapped]
     public class QuizAttempt
     {
         public int QuizId { get; set; }

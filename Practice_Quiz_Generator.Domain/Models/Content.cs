@@ -1,18 +1,18 @@
-//using Practice_Quiz_Generator.Domain.Models;
+//using System.ComponentModel.DataAnnotations;
 
-//namespace practice_quiz_generator.domain.models
+//namespace Practice_Quiz_Generator.Domain.Models
 //{
-//    public class content :BaseEntity
+//    public class Content
 //    {
-//        [key]
-//        public int contentid { get; set; }
-//        public required string title { get; set; }
-//        public required string body { get; set; }
-//        public required int courseid { get; set; }
-//        public required int createdid { get; set; }
-//        public string? processedtext { get; set; }
-//        public string? keywords { get; set; }
+//        [Key]
+//        public int ContentId { get; set; }
+//        public required string Title { get; set; }
+//        public required string Body { get; set; }
+//        public required int CourseId { get; set; }
+//        public required int CreatedId { get; set; }
+//        public string? ProcessedText { get; set; }
+//        public string? Keywords { get; set; }
 
-//        public icollection<quiz> quizzes { get; set; }
+//        public ICollection<Quiz> Quizzes { get; set; }
 //    }
 //}
