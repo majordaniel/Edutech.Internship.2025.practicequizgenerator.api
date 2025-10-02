@@ -8,6 +8,11 @@ namespace Practice_Quiz_Generator.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<Department> builder)
         {
+            builder.HasOne(d => d.Faculty)
+                   .WithMany(f => f.Departments)
+                   .HasForeignKey(d => d.FacultyId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasData(
                 // Faculty of Science
                 new Department

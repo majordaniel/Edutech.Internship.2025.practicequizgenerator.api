@@ -11,7 +11,7 @@ namespace Practice_Quiz_Generator.Infrastructure.Configurations
             builder.HasData(
                 new Faculty
                 {
-                    Id = "c7c6c04b-5b1f-47b1-90b0-bacb4c0d5894",
+                    Id =  "c7c6c04b-5b1f-47b1-90b0-bacb4c0d5894",
                     Name = "Faculty of Science",
                     Code = "SCI",
                     Dean = "Prof. Chinyere Okafor",

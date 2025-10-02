@@ -7,7 +7,7 @@
         public string Dean { get; set; }
         public string Description { get; set; }
 
-        public ICollection<Department>? Department { get; set; }
-        public ICollection<User>? User { get; set; }
+        public ICollection<Department>? Departments { get; set; } = new List<Department>();
+        public ICollection<User>? Users { get; set; } = new List<User>();
     }
 }

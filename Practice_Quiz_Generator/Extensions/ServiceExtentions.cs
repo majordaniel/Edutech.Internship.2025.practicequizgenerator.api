@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Practice_Quiz_Generator.Application.Services.Implementations;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Domain.Models;
+using Practice_Quiz_Generator.Infrastructure.Configurations;
 using Practice_Quiz_Generator.Infrastructure.DatabaseContext;
 using Practice_Quiz_Generator.Infrastructure.UOW;
 using System.Text;
@@ -64,36 +65,38 @@ namespace Practice_Quiz_Generator.Extensions
             });
         }
 
-        public static void ConfigureJwt(this IServiceCollection services, IConfiguration configuration)
-        {
-            var key = Encoding.UTF8.GetBytes(configuration["JwtSettings:securityKey"]);
+        //public static void ConfigureJwt(this IServiceCollection services, IConfiguration configuration)
+        //{
+        //    services.Configure<JwtSettingsConfiguration>(configuration.GetSection("JwtSettings"));
 
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = false, 
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = configuration["JwtSettings:validIssuer"],
-                ValidAudience = configuration["JwtSettings:validAudience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:securityKey"])),
-                //IssuerSigningKey = new SymmetricSecurityKey(key),
-                ClockSkew = TimeSpan.Zero
-            };
+        //    var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettingsConfiguration>();
 
-            services.AddSingleton(tokenValidationParameters);
+        //    if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.Key))
+        //        throw new ArgumentNullException(nameof(jwtSettings.Key), "JWT key is missing in appsettings.json");
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.SaveToken = true;
-                options.TokenValidationParameters = tokenValidationParameters;
-            });
-        }
+        //    var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
+
+        //    var tokenValidationParameters = new TokenValidationParameters
+        //    {
+        //        ValidateIssuerSigningKey = true,
+        //        IssuerSigningKey = new SymmetricSecurityKey(key),
+        //        ValidateIssuer = true,
+        //        ValidIssuer = jwtSettings.Issuer,
+        //        ValidateAudience = true,
+        //        ValidAudience = jwtSettings.Audience,
+        //        ValidateLifetime = true,
+        //        ClockSkew = TimeSpan.Zero
+        //    };
+
+        //    services.AddSingleton(tokenValidationParameters);
+
+
+        //    services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+        //    {
+        //        options.SaveToken = true;
+        //        options.TokenValidationParameters = tokenValidationParameters;
+        //    });
+        //}
 
     }
 }
