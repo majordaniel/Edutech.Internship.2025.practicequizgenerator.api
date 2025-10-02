@@ -16,7 +16,7 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<QuizQuestion> QuizQuestions { get; set; }
         public DbSet<QuizOption> QuizOptions { get; set; }
-        //public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         //public DbSet<Content> Contents { get; set; }
         //public DbSet<Quiz> Quizzes { get; set; }
         //public DbSet<Question> Questions { get; set; }
@@ -28,14 +28,14 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
         {
             base.OnModelCreating(modelBuilder);
             //modelBuilder.ApplyConfiguration(new SuperAdminConfiguration());
-            //modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
             //modelBuilder.ApplyConfiguration(new SuperAdminRoleConfiguration());
-            //modelBuilder.ApplyConfiguration(new FacultyConfiguration());
-            //modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
-            //modelBuilder.ApplyConfiguration(new CourseConfiguration());
-            //modelBuilder.ApplyConfiguration(new LevelConfiguration());
+            modelBuilder.ApplyConfiguration(new FacultyConfiguration());
+            modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
+            modelBuilder.ApplyConfiguration(new CourseConfiguration());
+            modelBuilder.ApplyConfiguration(new LevelConfiguration());
             //modelBuilder.ApplyConfiguration(new StudentConfiguration());
-            modelBuilder.ApplyConfiguration(new StudentCourseConfiguration());
+            //modelBuilder.ApplyConfiguration(new StudentCourseConfiguration());
 
             foreach (var relationship in modelBuilder.Model.GetEntityTypes()
             .SelectMany(e => e.GetForeignKeys()))
