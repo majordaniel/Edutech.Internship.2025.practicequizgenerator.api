@@ -2,10 +2,9 @@
 
 namespace Practice_Quiz_Generator.Domain.Models
 {
-    [NotMapped]
-    public class Option
+    public class QuizOption : BaseEntity
     {
-        public string Text { get; set; }
+        public string QuizOptionText { get; set; }
         public bool IsCorrect { get; set; }
         public string QuizQuestionId { get; set; }
 

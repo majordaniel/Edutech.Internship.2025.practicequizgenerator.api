@@ -13,6 +13,8 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
         private ILevelRepository _levelRepository;
         private IStudentCourseRepository _studentCourseRepository;
         private IUserRepository _userRepository;
+        private IQuizRepository _quizRepository;
+        private IRefreshTokenRepository _refreshTokenRepository;
 
         public UnitOfWork(ExamPortalContext context)
         {
@@ -22,11 +24,11 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
 
         public ICourseRepository CourseRepository
         {
-            get 
-            { 
-                if(_courseRepository == null) 
+            get
+            {
+                if (_courseRepository == null)
                     _courseRepository = new CourseRepository(_context);
-                return _courseRepository; 
+                return _courseRepository;
             }
         }
 
@@ -73,15 +75,37 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
         {
             get
             {
-                if(_userRepository == null)
+                if (_userRepository == null)
                     _userRepository = new UserRepository(_context);
                 return _userRepository;
             }
         }
 
+        public IQuizRepository QuizRepository 
+        { 
+            get 
+            { 
+                if (_quizRepository == null)
+                    _quizRepository = new QuizRepository(_context);
+                return _quizRepository; 
+            } 
+        }
+
+        public IRefreshTokenRepository RefreshTokenRepository 
+        { 
+            get 
+            { 
+                if (_refreshTokenRepository == null)
+                    _refreshTokenRepository = new RefreshTokenRepository(_context);
+                return _refreshTokenRepository; 
+            } 
+        }
+
+
+
         public async Task SaveChangesAsync()
         {
-           await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
     }
 }

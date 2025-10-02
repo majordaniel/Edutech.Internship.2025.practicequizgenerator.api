@@ -37,5 +37,7 @@ namespace Practice_Quiz_Generator.Infrastructure.Configurations
                 }
             );
         }
+
+
     }
 }

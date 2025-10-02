@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Practice_Quiz_Generator.Application.ServiceConfiguration.MapInitializer;
 using Practice_Quiz_Generator.Application.Services.Implementations;
@@ -7,7 +9,10 @@ using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Domain.Models;
 using Practice_Quiz_Generator.Extensions;
 using Practice_Quiz_Generator.Infrastructure;
+using Practice_Quiz_Generator.Infrastructure.Configurations;
 using Practice_Quiz_Generator.Infrastructure.DatabaseContext;
+using Practice_Quiz_Generator.Infrastructure.UOW;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,35 +36,64 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 .AddEntityFrameworkStores<ExamPortalContext>()
 .AddDefaultTokenProviders();
 
+var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettingsConfiguration>();
 
-builder.Services.AddScoped<IAuthService, AuthService>();
-// Add services to the container.
-builder.Services.ConfigureDatabase(builder.Configuration);
+if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.Key))
+{
+    throw new InvalidOperationException("JWT settings are missing or incomplete in appsettings.json");
+}
 
+var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
 
-builder.Services.AddAutoMapper(cfg => { },
-    typeof(MappingProfile)
-);
-
-builder.Services.AddHttpClient<IGeminiService, GeminiService>();
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-//builder.Services.AddSwaggerGen(c =>
+//builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
 //{
-//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Practice Quiz API", Version = "v1" });
-
-//    // Handle file uploads in Swagger
-//    c.MapType<IFormFile>(() => new OpenApiSchema
+//    options.TokenValidationParameters = new TokenValidationParameters
 //    {
-//        Type = "string",
-//        Format = "binary"
-//    });
+//        ValidateIssuerSigningKey = true,
+//        IssuerSigningKey = new SymmetricSecurityKey(key),
+//        ValidateIssuer = true,
+//        ValidIssuer = jwtSettings.Issuer,
+//        ValidateAudience = true,
+//        ValidAudience = jwtSettings.Audience,
+//        ValidateLifetime = true,
+//        ClockSkew = TimeSpan.Zero
+//    };
 //});
 
+var tokenValidationParameters = new TokenValidationParameters
+{
+    ValidateIssuerSigningKey = true,
+    IssuerSigningKey = new SymmetricSecurityKey(key),
+    ValidateIssuer = true,
+    ValidIssuer = jwtSettings.Issuer,
+    ValidateAudience = true,
+    ValidAudience = jwtSettings.Audience,
+    ValidateLifetime = true,
+    ClockSkew = TimeSpan.Zero
+};
 
+builder.Services.AddSingleton(tokenValidationParameters);
+builder.Services.Configure<JwtSettingsConfiguration>(builder.Configuration.GetSection("JwtSettings"));
+builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+{
+    options.TokenValidationParameters = tokenValidationParameters;
+});
+
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+
+builder.Services.ConfigureDependencyInjection();
+builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
+builder.Services.ConfigureCors();
+builder.Services.AddHttpClient<IGeminiService, GeminiService>();
+
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -69,18 +103,10 @@ using (var scope = app.Services.CreateScope())
     await RoleSeeder.SeedRolesAsync(roleManager);
 }
 
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
 app.UseSwagger();
-    app.UseSwaggerUI();
-//}
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-
-app.UseCors("AllowAll");
-
-app.UseAuthentication();
 app.UseCors("CorsPolicy");
 
 app.UseAuthentication();
@@ -88,6 +114,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-
-
 app.Run();
+
+

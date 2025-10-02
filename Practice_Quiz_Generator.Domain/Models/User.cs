@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Practice_Quiz_Generator.Domain.Models
 {
-    public class User : IdentityUser<string>
+    public class User : IdentityUser
     {
         [Required]
         [StringLength(100)]
@@ -46,7 +46,7 @@ namespace Practice_Quiz_Generator.Domain.Models
         
        
 
-        public virtual ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
-        public virtual ICollection<QuizAttempt> QuizAttempts { get; set; } = new List<QuizAttempt>();
+        //public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
+        public ICollection<QuizAttempt> QuizAttempts { get; set; } = new List<QuizAttempt>();
     }
 }

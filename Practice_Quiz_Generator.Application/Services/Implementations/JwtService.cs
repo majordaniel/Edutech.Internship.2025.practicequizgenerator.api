@@ -20,7 +20,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
         private readonly UserManager<User> _userManager;
         public JwtService(IOptions<JwtSettingsConfiguration> jwtSettings, UserManager<User> userManager)
         {
-            _jwtSettings = jwtSettings.Value;
+            _jwtSettings = jwtSettings.Value ?? throw new ArgumentNullException(nameof(jwtSettings));
             _userManager = userManager;
         }
 
