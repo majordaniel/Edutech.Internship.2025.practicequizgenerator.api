@@ -12,7 +12,6 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
         public DbSet<Department> Departments { get; set; }
         public DbSet<Level> Levels { get; set; }
         public DbSet<Course> Courses { get; set; }
-
         public DbSet<StudentCourse> StudentCourses { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<QuizQuestion> QuizQuestions { get; set; }
@@ -28,18 +27,21 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new UserConfiguration());
-            modelBuilder.ApplyConfiguration(new SuperAdminConfiguration());
+            //modelBuilder.ApplyConfiguration(new SuperAdminConfiguration());
+            //modelBuilder.ApplyConfiguration(new RoleConfiguration());
             //modelBuilder.ApplyConfiguration(new SuperAdminRoleConfiguration());
-            modelBuilder.ApplyConfiguration(new FacultyConfiguration());
-            modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
-            modelBuilder.ApplyConfiguration(new CourseConfiguration());
-            modelBuilder.ApplyConfiguration(new LevelConfiguration());
-            modelBuilder.ApplyConfiguration(new StudentConfiguration());
+            //modelBuilder.ApplyConfiguration(new FacultyConfiguration());
+            //modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
+            //modelBuilder.ApplyConfiguration(new CourseConfiguration());
+            //modelBuilder.ApplyConfiguration(new LevelConfiguration());
+            //modelBuilder.ApplyConfiguration(new StudentConfiguration());
             modelBuilder.ApplyConfiguration(new StudentCourseConfiguration());
-           // modelBuilder.ApplyConfiguration(new QuizConfiguration());
-            //modelBuilder.ApplyConfiguration(new QuizAttemptConfiguration());
-   
+
+            foreach (var relationship in modelBuilder.Model.GetEntityTypes()
+            .SelectMany(e => e.GetForeignKeys()))
+            {
+                relationship.DeleteBehavior = DeleteBehavior.Restrict;
+            }
         }
     
 
