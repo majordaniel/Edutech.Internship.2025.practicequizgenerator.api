@@ -65,9 +65,6 @@ namespace Practice_Quiz_Generator.Controllers
                 return BadRequest("Submission must contain answers.");
             }
 
-            // We assume the StudentId is set here, possibly from the JWT token
-            // For simplicity, we'll use the ID passed in the DTO for now.
-
             var result = await _quizSubmissionService.SubmitAndGradeAsync(submissionDto);
             
             return Ok(result);
