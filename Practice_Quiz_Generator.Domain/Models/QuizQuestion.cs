@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Practice_Quiz_Generator.Domain.Models
+﻿namespace Practice_Quiz_Generator.Domain.Models
 {
     public class QuizQuestion : BaseEntity
     {

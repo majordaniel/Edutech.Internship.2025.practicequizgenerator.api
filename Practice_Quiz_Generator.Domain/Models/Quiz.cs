@@ -1,10 +1,5 @@
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Practice_Quiz_Generator.Domain.Models
 {
-    [NotMapped]
     public class Quiz : BaseEntity
     {
         public string Title { get; set; }
@@ -20,9 +15,6 @@ namespace Practice_Quiz_Generator.Domain.Models
         public string UserId { get; set; }
         public User User { get; set; }
         public Course Course { get; set; }
-
-        public string Content { get; set; } = string.Empty;
-
         //public QuizSetup QuizSetup { get; set; }
         public ICollection<QuizQuestion> QuizQuestion { get; set; }
     }

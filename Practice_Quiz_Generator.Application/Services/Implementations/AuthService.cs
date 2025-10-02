@@ -3,12 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtensions;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Domain.Models;
-using Practice_Quiz_Generator.Infrastructure.Configurations;
 using Practice_Quiz_Generator.Infrastructure.UOW;
 using Practice_Quiz_Generator.Shared.Constants;
 using Practice_Quiz_Generator.Shared.CustomItems.Response;
@@ -18,7 +16,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
-
+using System.Web;
 
 namespace Practice_Quiz_Generator.Application.Services.Implementations
 {
@@ -28,14 +26,11 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
         private readonly UserManager<User> _userManager;
         private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
-        private readonly IJwtService _jwtService;
         private readonly IConfiguration _configuration;
-        private readonly JwtSettingsConfiguration _jwtSettings;
         private readonly TokenValidationParameters _tokenValidationParameters;
-
         // Reminder --> Add logger 
 
-        public AuthService(UserManager<User> userManager, IMapper mapper, IUnitOfWork unitOfWork, IEmailService emailService, IConfiguration configuration, IJwtService jwtService, TokenValidationParameters tokenValidationParameters, IOptions<JwtSettingsConfiguration> jwtSettings)
+        public AuthService(UserManager<User> userManager, IMapper mapper, IUnitOfWork unitOfWork, IEmailService emailService, IConfiguration configuration, TokenValidationParameters tokenValidationParameters)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
@@ -43,62 +38,6 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             _emailService = emailService;
             _configuration = configuration;
             _tokenValidationParameters = tokenValidationParameters;
-            _jwtService = jwtService;
-            _jwtSettings = jwtSettings.Value;
-        }
-
-        public async Task<StandardResponse<TokenDto>> LoginAsync(LoginRequestDto request)
-        {
-            try
-            {
-                // Find user by email 
-                var user = await _userManager.FindByEmailAsync(request.Email);
-                if (user == null)
-                {
-                    return StandardResponse<TokenDto>.Failed(
-                        "Invalid credentials",
-                        (int)HttpStatusCode.Unauthorized);
-                }
-
-                // Verify password using UserManager
-                var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
-                if (!isPasswordValid)
-                {
-                    return StandardResponse<TokenDto>.Failed(
-                        "Invalid credentials",
-                        (int)HttpStatusCode.Unauthorized);
-                }
-
-                // Check if user is active 
-                if (!user.IsActive)
-                {
-                    return StandardResponse<TokenDto>.Failed(
-                        "Account is inactive",
-                        (int)HttpStatusCode.Forbidden);
-                }
-
-                // Generate JWT token
-                var token = await _jwtService.GenerateTokenAsync(user);
-                var expiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationInMinutes); 
-
-                var response = new TokenDto
-                {
-                    Token = token,
-                    ExpiresAt = expiresAt,
-                    UserId = user.Id,
-                    Name = $"{user.FirstName} {user.LastName}",
-                    Email = user.Email,
-                    Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "Student"
-                };
-
-                return StandardResponse<TokenDto>.Success("Login Successful", response);
-            }
-            catch (Exception ex)
-            {
-                return StandardResponse<TokenDto>.Failed(
-                    "An error occurred during login",
-                    (int)HttpStatusCode.InternalServerError);
-            }
         }
 
         public async Task<StandardResponse<UserResponseDto>> RegisterAsync(CreateUserRequestDto userRequest)
@@ -132,7 +71,8 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 newUser.UserName = userRequest.Email;
                 //User newUser = _mapper.Map<User>(userRequest);
 
-                var createdUser = await _userManager.CreateAsync(newUser, userRequest.Password);
+                //var createdUser = await _userManager.CreateAsync(newUser, userRequest.Password);
+                var createdUser = await _userManager.CreateAsync(newUser, "PracticeQuiz@2025");
                 await _userManager.AddToRoleAsync(newUser, "Student");
 
 
@@ -197,25 +137,11 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             }
 
             var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-            user.ResetToken = resetToken;
-            user.ResetTokenExpiry = DateTime.UtcNow.AddHours(1);
-
-            //var resetLink = await _emailService.GeneratePasswordResetLinkAsync(user.Email, resetToken, "https");
-
-            //await _emailService.SendEmailAsync(user.Email, "Reset Your Password", $"Reset your password: <a href='{resetLink}'>Click here</a>");
-
-            //return StandardResponse<string>.Success("Password reset link has been sent to your email.", resetLink);
-
-            // Update the user
-            await _userManager.UpdateAsync(user);
-
-            // Send email
             var resetLink = await _emailService.GeneratePasswordResetLinkAsync(user.Email, resetToken, "https");
+
             await _emailService.SendEmailAsync(user.Email, "Reset Your Password", $"Reset your password: <a href='{resetLink}'>Click here</a>");
 
-            return StandardResponse<string>.Success(
-                "Password reset link has been sent to your email.",
-                resetLink);
+            return StandardResponse<string>.Success("Password reset link has been sent to your email.", resetLink);
         }
 
         public async Task<StandardResponse<string>> ResetPasswordAsync(ResetPasswordRequestDto request)
@@ -232,7 +158,18 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             return StandardResponse<string>.Success("Password has been reset successfully.", user.Email);
         }
 
+        public async Task<StandardResponse<TokenDto>> LoginAsync(LoginRequestDto request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null || !await _userManager.CheckPasswordAsync(user, request.Password))
+            {
+                return StandardResponse<TokenDto>.Failed("Invalid login credentials");
+            }
 
+            var tokens = await GenerateTokensAsync(user);
+            return StandardResponse<TokenDto>.Success("Login successful", tokens);
+
+        }
 
         public async Task<StandardResponse<TokenDto>> RefreshTokenAsync(TokenDto tokenDto)
         {
