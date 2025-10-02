@@ -2,6 +2,7 @@
 using Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtensions;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Shared.DTOs;
+using Practice_Quiz_Generator.Shared.DTOs.Request;
 
 namespace Practice_Quiz_Generator.Controllers
 {

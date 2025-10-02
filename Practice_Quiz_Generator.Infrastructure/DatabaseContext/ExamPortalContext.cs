@@ -16,7 +16,7 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<QuizQuestion> QuizQuestions { get; set; }
         public DbSet<QuizOption> QuizOptions { get; set; }
-        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        //public DbSet<RefreshToken> RefreshTokens { get; set; }
         //public DbSet<Content> Contents { get; set; }
         //public DbSet<Quiz> Quizzes { get; set; }
         //public DbSet<Question> Questions { get; set; }
