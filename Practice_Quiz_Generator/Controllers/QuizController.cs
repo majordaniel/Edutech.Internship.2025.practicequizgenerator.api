@@ -30,7 +30,23 @@ namespace Practice_Quiz_Generator.Controllers
             var text = await _fileProcessingService.ExtractTextAsync(quizUploadRequest.File);
 
             var request = quizUploadRequest.ToQuizRequestDto();
+            request.UploadedText = text;
             var result = await _quizService.GenerateQuizAsync(request);
+            return Ok(result);
+        }
+
+        [HttpPost("createfromfile/persist")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateQuizFromFile([FromForm] QuizPersistUploadRequestDto quizUploadRequest)
+        {
+            if (quizUploadRequest.File == null || quizUploadRequest.File.Length == 0)
+                return BadRequest("No file uploaded");
+
+            var text = await _fileProcessingService.ExtractTextAsync(quizUploadRequest.File);
+
+            var request = quizUploadRequest.ToQuizPersistRequestDto();
+            request.UploadedText = text;
+            var result = await _quizService.CreateQuizAsync(request);
             return Ok(result);
         }
 

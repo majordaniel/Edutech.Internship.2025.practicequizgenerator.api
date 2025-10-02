@@ -5,9 +5,9 @@ namespace Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtens
 {
     public static class QuizMapping
     {
-        public static QuizRequestDto ToQuizRequestDto(this QuizUploadRequestDto quizUploadRequest)
+        public static QuizAndPersistRequestDto ToQuizPersistRequestDto(this QuizPersistUploadRequestDto quizUploadRequest)
         {
-            return new QuizRequestDto
+            return new QuizAndPersistRequestDto
             {
                 NumberOfQuestions = quizUploadRequest.NumberOfQuestions,
                 QuestionType = "MCQ",
@@ -15,6 +15,20 @@ namespace Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtens
                 Timer = quizUploadRequest.Timer,
                 UserId = quizUploadRequest.UserId,
                 CourseId = quizUploadRequest.CourseId,
+            };
+        }
+
+        public static QuizRequestDto ToQuizRequestDto(this QuizUploadRequestDto quizUploadRequest)
+        {
+            return new QuizRequestDto
+            {
+                NumberOfQuestions = quizUploadRequest.NumberOfQuestions,
+                QuestionType = "MCQ"
+               
+                //QuestionSource = "UCM",
+                //Timer = quizUploadRequest.Timer,
+                //UserId = quizUploadRequest.UserId,
+                //CourseId = quizUploadRequest.CourseId,
             };
         }
     }

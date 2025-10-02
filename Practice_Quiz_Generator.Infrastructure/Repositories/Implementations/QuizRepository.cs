@@ -14,7 +14,7 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
             return await _context.Quizzes
                   .Include(q => q.QuizQuestion)
                       .ThenInclude(qq => qq.QuizOption)
-                  .FirstOrDefaultAsync(q => q.Id == quizId);
+                  .FirstOrDefaultAsync(q => q.Id == quizId.Trim());
         }
 
         public async Task<IEnumerable<Quiz>> GetAllUserQuizzesWithQuestions(string userId)
