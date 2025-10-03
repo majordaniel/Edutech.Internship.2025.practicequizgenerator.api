@@ -31,12 +31,12 @@ namespace Practice_Quiz_Generator.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        //[HttpPost("login")]
-        //public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
-        //{
-        //    var result = await _authService.LoginAsync(request);
-        //    return Ok(result);
-        //}
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+        {
+            var result = await _authService.LoginAsync(request);
+            return Ok(result);
+        }
 
         //[HttpPost("refresh")]
         //public async Task<IActionResult> Refresh([FromBody] TokenDto tokenDto)
