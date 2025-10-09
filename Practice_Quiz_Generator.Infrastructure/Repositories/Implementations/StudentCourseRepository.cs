@@ -1,10 +1,7 @@
-﻿using Practice_Quiz_Generator.Domain.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Practice_Quiz_Generator.Domain.Models;
 using Practice_Quiz_Generator.Infrastructure.DatabaseContext;
 using Practice_Quiz_Generator.Infrastructure.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
 {
@@ -12,12 +9,12 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
     {
         public StudentCourseRepository(ExamPortalContext context) : base(context) { }
 
-        public async Task<List<Course>> GetCoursesForStudentAsync(string studentId)
+        public async Task<StudentCourse> FindStudentCourseById(string id)
         {
-            return await _context.StudentCourses
-                .Where(sc => sc.StudentId == studentId)
-                .Select(sc => sc.Course)
-                .ToListAsync();
+            return await FindByCondition(sc => sc.Id == id, false)
+                .FirstOrDefaultAsync();
+                
+                 
         }
     }
 }

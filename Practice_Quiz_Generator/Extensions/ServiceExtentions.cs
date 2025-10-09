@@ -1,13 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Practice_Quiz_Generator.Application.Services.Implementations;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
-using Practice_Quiz_Generator.Infrastructure.Repositories.Implementations;
-using Practice_Quiz_Generator.Infrastructure.Repositories.Interfaces;
+using Practice_Quiz_Generator.Domain.Models;
 using Practice_Quiz_Generator.Infrastructure.DatabaseContext;
 using Practice_Quiz_Generator.Infrastructure.UOW;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Identity;
-using Practice_Quiz_Generator.Domain.Models;
+using System.Text;
 
 namespace Practice_Quiz_Generator.Extensions
 {
@@ -15,13 +15,10 @@ namespace Practice_Quiz_Generator.Extensions
     {
         public static void ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ExamPortalContext>(options =>
-                options.UseSqlServer(
-                    configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("Practice_Quiz_Generator.Infrastructure")
-                )
-                .EnableSensitiveDataLogging()
-            );
+            services.AddDbContext<ExamPortalContext>(options => 
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
+            .LogTo(Console.WriteLine, LogLevel.Information)
+           .EnableSensitiveDataLogging());
         }
 
 
@@ -29,29 +26,17 @@ namespace Practice_Quiz_Generator.Extensions
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IFacultyService, FacultyService>();
-            services.AddScoped<IQuizValidationService, QuizValidationService>();
-            services.AddScoped<IQuizGenerationService, QuizGenerationService>();
-            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IDepartmentService, DepartmentService>();
+            services.AddScoped<ICourseService, CourseService>();
+            services.AddScoped<ILevelService, LevelService>();
             services.AddScoped<IStudentCourseService, StudentCourseService>();
-            services.AddScoped<IQuizSetupService, QuizSetupService>();
-            services.AddScoped<IQuizSubmissionService, QuizSubmissionService>();
-
-            services.AddScoped<IStudentCourseRepository, StudentCourseRepository>();
-            services.AddScoped<IQuizAttemptRepository, QuizAttemptRepository>();
-            services.AddScoped<IQuestionRepository, QuestionRepository>();
-
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IFileProcessingService, FileProcessingService>();
+            services.AddScoped<IQuizService, QuizService>();
+            services.AddScoped<IUserService, UserService>();
         }
-        public static void ConfigureCors(this IServiceCollection services)
-        {
-            services.AddCors(option =>
-            {
-                option.AddPolicy("CorsPolicy", builder => builder
-                .AllowAnyHeader()
-                .AllowAnyOrigin()
-                .AllowAnyMethod());
-            });
-        }
-        
+
         public static void ConfigureIdentity(this IServiceCollection services)
         {
             var builder = services.AddIdentity<User, IdentityRole>(i =>
@@ -67,5 +52,48 @@ namespace Practice_Quiz_Generator.Extensions
             .AddEntityFrameworkStores<ExamPortalContext>()
             .AddDefaultTokenProviders();
         }
+
+        public static void ConfigureCors(this IServiceCollection services)
+        {
+            services.AddCors(option =>
+            {
+                option.AddPolicy("CorsPolicy", builder => builder
+                .AllowAnyHeader()
+                .AllowAnyOrigin()
+                .AllowAnyMethod());
+            });
+        }
+
+        public static void ConfigureJwt(this IServiceCollection services, IConfiguration configuration)
+        {
+            var key = Encoding.UTF8.GetBytes(configuration["JwtSettings:securityKey"]);
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = false, 
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = configuration["JwtSettings:validIssuer"],
+                ValidAudience = configuration["JwtSettings:validAudience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:securityKey"])),
+                //IssuerSigningKey = new SymmetricSecurityKey(key),
+                ClockSkew = TimeSpan.Zero
+            };
+
+            services.AddSingleton(tokenValidationParameters);
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.TokenValidationParameters = tokenValidationParameters;
+            });
+        }
+
     }
 }

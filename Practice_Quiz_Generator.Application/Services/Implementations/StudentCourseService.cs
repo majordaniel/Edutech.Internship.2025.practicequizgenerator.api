@@ -1,29 +1,66 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
-using Practice_Quiz_Generator.Infrastructure.DatabaseContext;
-using System.Collections.Generic;
-using System.Linq;
+using Practice_Quiz_Generator.Infrastructure.UOW;
+using Practice_Quiz_Generator.Shared.CustomItems.Response;
+using Practice_Quiz_Generator.Shared.DTOs.Response;
 using System.Threading.Tasks;
 
 namespace Practice_Quiz_Generator.Application.Services.Implementations
 {
     public class StudentCourseService : IStudentCourseService
     {
-        private readonly ExamPortalContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public StudentCourseService(ExamPortalContext context)
+        public StudentCourseService(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<List<string>> GetStudentCourseIdsAsync(string studentId)
+        public Task<StandardResponse<StudentCourseResponseDto>> GetStudentCourseByIdAsync(string id)
         {
-            var courseIds = await _context.StudentCourses
-                                            .Where(sc => sc.StudentId == studentId)
-                                            .Select(sc => sc.CourseId)
-                                            .ToListAsync();
+            throw new NotImplementedException();
+        }
 
-            return courseIds;
+        public async Task<StandardResponse<StudentCourseResponseDto>> GetStudentCoursesAsync(string studentId)
+        {
+            if (string.IsNullOrWhiteSpace(studentId))
+            {
+                return StandardResponse<StudentCourseResponseDto>.Failed("Invalid student Id.");
+            }
+
+            var student = await _unitOfWork.UserRepository.FindUserById(studentId);
+            if (student == null)
+            {
+                return StandardResponse<StudentCourseResponseDto>.Failed("Student not found.");
+            }
+
+            var studentCourses = await _unitOfWork.StudentCourseRepository
+                .FindByCondition(sc => sc.StudentId == studentId, false)
+                .Select(sc => sc.Course)
+                .ToListAsync();
+
+            if (studentCourses == null || !studentCourses.Any())
+            {
+                return StandardResponse<StudentCourseResponseDto>.Success(
+                    "Student has no registered courses.", new StudentCourseResponseDto()
+                    
+                );
+            }
+
+            var response = new StudentCourseResponseDto
+            {
+                StudentId = studentId,
+                Courses = studentCourses.Select(c => new CourseDto
+                {
+                    Id = c.Id,
+                    Title = c.Title,
+                    Code = c.Code,
+                    CreditUnit = c.CreditUnit,
+                    Semester = c.Semester
+                }).ToList(),
+            };
+
+            return StandardResponse<StudentCourseResponseDto>.Success("Student courses retrieved successfully.", response);
         }
     }
 }

@@ -13,16 +13,6 @@ namespace Practice_Quiz_Generator.Application.Services.Interfaces
         Task<StandardResponse<FacultyResponseDto>> GetFacultyByNameAsync(string name);
         Task<StandardResponse<IEnumerable<FacultyResponseDto>>> GetAllFacultiesAsync();
         Task<StandardResponse<FacultyResponseDto>> GetFacultyByIdAsync(string id);
-        Task<StandardResponse<FacultyResponseDto>> CreateFaculty(FacultyRequestDto facultyRequest);
-
-
-
-
-
-        //Task<Response<Faculty>> CreateFacultyAsync(Faculty faculty);
-        //Task<Response<IEnumerable<Faculty>>> GetAllFacultiesAsync();
-        //Task<Response<Faculty>> GetFacultyByIdAsync(string id);
-        //Task<Response<Faculty>> UpdateFacultyAsync(Faculty faculty);
-        //Task<Response<bool>> DeleteFacultyAsync(string id);
+        Task<StandardResponse<FacultyResponseDto>> CreateFacultyAsync(FacultyRequestDto facultyRequest);
     }
 }

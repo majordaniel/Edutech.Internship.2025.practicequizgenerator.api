@@ -1,73 +1,70 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtensions;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
+using Practice_Quiz_Generator.Shared.DTOs;
 using Practice_Quiz_Generator.Shared.DTOs.Request;
-using Practice_Quiz_Generator.Shared.DTOs.Response;
-using System.Threading.Tasks;
 
 namespace Practice_Quiz_Generator.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    // [Authorize]
+    [ApiController]
     public class QuizController : ControllerBase
     {
-        private readonly IQuizValidationService _quizValidationService;
-        private readonly IQuizGenerationService _quizGenerationService;
-        private readonly IUserService _userService;
-        private readonly IStudentCourseService _studentCourseService;
+        private readonly IQuizService _quizService;
+        private readonly IFileProcessingService _fileProcessingService;
 
-        private readonly IQuizSetupService _quizSetupService;
-
-        private readonly IQuizSubmissionService _quizSubmissionService;
-
-        public QuizController(IQuizValidationService quizService, IQuizGenerationService quizGenerationService, IUserService userService, IStudentCourseService studentCourseService, IQuizSetupService quizSetupService, IQuizSubmissionService quizSubmissionService)
+        public QuizController(IQuizService quizService, IFileProcessingService fileProcessingService)
         {
-            _quizValidationService = quizService;
-            _quizGenerationService = quizGenerationService;
-            _userService = userService;
-            _studentCourseService = studentCourseService;
-            _quizSubmissionService = quizSubmissionService;
-            _quizSetupService = quizSetupService;
+            _quizService = quizService;
+            _fileProcessingService = fileProcessingService;
+
         }
 
-        [HttpPost("generate")]
-        public async Task<IActionResult> GenerateQuiz([FromBody] QuizGenerationRequestDto request)
+        [HttpPost("generatefromfile")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> GenerateQuizFromFile([FromForm] QuizUploadRequestDto quizUploadRequest)
         {
-            var studentId = _userService.GetCurrentUserId();
+            if (quizUploadRequest.File == null || quizUploadRequest.File.Length == 0)
+                return BadRequest("No file uploaded");
 
-            if (!await _quizValidationService.ValidateRequest(request, studentId))
-            {
-                return BadRequest("Invalid quiz generation request.");
-            }
+            var text = await _fileProcessingService.ExtractTextAsync(quizUploadRequest.File);
 
-            var quizRequestId = await _quizGenerationService.GenerateQuizAsync(request);
-            return Accepted(new { quizRequestId });
-        }
-
-        // This is the new endpoint for the quiz setup form.
-        [HttpGet("setup")]
-        public async Task<IActionResult> GetQuizSetupData()
-        {
-            var studentId = _userService.GetCurrentUserId();
-            var setupData = await _quizSetupService.GetQuizSetupDataAsync(studentId);
-
-            return Ok(setupData);
-        }
-
-        [HttpPost("submit")]
-        [ProducesResponseType(typeof(QuizResultResponseDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> SubmitQuiz([FromBody] QuizSubmissionDto submissionDto)
-        {
-            if (submissionDto == null || submissionDto.Answers.Count() == 0)
-            {
-                return BadRequest("Submission must contain answers.");
-            }
-
-            var result = await _quizSubmissionService.SubmitAndGradeAsync(submissionDto);
-            
+            var request = quizUploadRequest.ToQuizRequestDto();
+            request.UploadedText = text;
+            var result = await _quizService.GenerateQuizAsync(request);
             return Ok(result);
         }
+
+        [HttpPost("createfromfile/persist")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateQuizFromFile([FromForm] QuizPersistUploadRequestDto quizUploadRequest)
+        {
+            if (quizUploadRequest.File == null || quizUploadRequest.File.Length == 0)
+                return BadRequest("No file uploaded");
+
+            var text = await _fileProcessingService.ExtractTextAsync(quizUploadRequest.File);
+
+            var request = quizUploadRequest.ToQuizPersistRequestDto();
+            request.UploadedText = text;
+            var result = await _quizService.CreateQuizAsync(request);
+            return Ok(result);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetQuizById(string id)
+        {
+            var result = await _quizService.GetQuizByIdAsync(id);
+            //return StatusCode(result.StatusCode, result);
+            return Ok(result);
+        }
+
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetAllUserQuizzes(string userId)
+        {
+            var result = await _quizService.GetAllUserQuizzesAsync(userId);
+            return Ok( result);
+        }
+
+
     }
 }

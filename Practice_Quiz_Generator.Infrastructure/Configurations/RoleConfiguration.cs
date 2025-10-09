@@ -10,18 +10,12 @@ namespace Practice_Quiz_Generator.Infrastructure.Configurations
         {
             builder.HasData(new IdentityRole
             {
-                Name = "super-admin",
-                NormalizedName = "SUPER-ADMIN",
+                Name = "admin",
+                NormalizedName = "ADMIN",
             },
             new IdentityRole
             {
-                Id = "9d3730d8-d790-4158-83b8-e5d96067359d",
-                Name = "Admin",
-                NormalizedName = "ADMIN"
-            },
-            new IdentityRole
-            {
-                Name = "Student",
+                Name = "student",
                 NormalizedName = "STUDENT"
             }
 

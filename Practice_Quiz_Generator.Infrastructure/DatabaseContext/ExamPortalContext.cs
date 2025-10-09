@@ -13,33 +13,69 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
         public DbSet<Level> Levels { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<StudentCourse> StudentCourses { get; set; }
-        public DbSet<Content> Contents { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
-        public DbSet<Question> Questions { get; set; }
-        public DbSet<QuizAttempt> QuizAttempts { get; set; }
-        public DbSet<QuizAttemptAnswer> QuizAttemptAnswers { get; set; }
-        public DbSet<Option> Options { get; set; } 
+        public DbSet<QuizQuestion> QuizQuestions { get; set; }
+        public DbSet<QuizOption> QuizOptions { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        //public DbSet<Content> Contents { get; set; }
+        //public DbSet<Quiz> Quizzes { get; set; }
+        //public DbSet<Question> Questions { get; set; }
+        //public DbSet<QuizAttempt> QuizAttempts { get; set; }
 
         public ExamPortalContext(DbContextOptions<ExamPortalContext> options) : base(options) { }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new SuperAdminConfiguration());
+            //modelBuilder.ApplyConfiguration(new SuperAdminConfiguration());
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
-            modelBuilder.ApplyConfiguration(new SuperAdminRoleConfiguration());
+            //modelBuilder.ApplyConfiguration(new SuperAdminRoleConfiguration());
             modelBuilder.ApplyConfiguration(new FacultyConfiguration());
             modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
             modelBuilder.ApplyConfiguration(new CourseConfiguration());
             modelBuilder.ApplyConfiguration(new LevelConfiguration());
-            modelBuilder.ApplyConfiguration(new StudentConfiguration());
-            modelBuilder.ApplyConfiguration(new StudentCourseConfiguration());
-            modelBuilder.ApplyConfiguration(new QuizConfiguration());
-            modelBuilder.ApplyConfiguration(new QuestionConfiguration());
-            modelBuilder.ApplyConfiguration(new QuizAttemptConfiguration());
-            modelBuilder.ApplyConfiguration(new QuizAttemptAnswerConfiguration());
-        }
+            //modelBuilder.ApplyConfiguration(new StudentConfiguration());
+            //modelBuilder.ApplyConfiguration(new StudentCourseConfiguration());
 
-    }
+            foreach (var relationship in modelBuilder.Model.GetEntityTypes()
+            .SelectMany(e => e.GetForeignKeys()))
+            {
+                relationship.DeleteBehavior = DeleteBehavior.Restrict;
+            }
+        }
+    
+
+
+
+    //protected override void OnModelCreating(ModelBuilder modelBuilder)
+    //{
+    //    modelBuilder.Entity<Quiz>()
+    //        .HasOne(q => q.User)
+    //        .WithMany(u => u.Quizzes)
+    //        .HasForeignKey(q => q.UserId);
+
+    //    modelBuilder.Entity<Quiz>()
+    //        .HasOne(q => q.Content)
+    //        .WithMany(c => c.Quizzes)
+    //        .HasForeignKey(q => q.ContentId);
+
+    //    modelBuilder.Entity<Question>()
+    //        .HasOne(qn => qn.Quiz)
+    //        .WithMany(q => q.Questions)
+    //        .HasForeignKey(qn => qn.QuizId);
+
+    //    modelBuilder.Entity<QuizAttempt>()
+    //        .HasOne(qa => qa.Quiz)
+    //        .WithMany(q => q.QuizAttempts)
+    //        .HasForeignKey(qa => qa.QuizId)
+    //        .OnDelete(DeleteBehavior.Cascade);
+
+
+    //    modelBuilder.Entity<QuizAttempt>()
+    //        .HasOne(qa => qa.User)
+    //        .WithMany(u => u.QuizAttempts)
+    //        .HasForeignKey(qa => qa.UserId)
+    //        .OnDelete(DeleteBehavior.Restrict);
+    //}
+}
 }

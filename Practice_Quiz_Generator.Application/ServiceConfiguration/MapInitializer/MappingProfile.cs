@@ -3,7 +3,7 @@ using Practice_Quiz_Generator.Domain.Models;
 using Practice_Quiz_Generator.Shared.DTOs.Request;
 using Practice_Quiz_Generator.Shared.DTOs.Response;
 
-namespace Practice_Quiz_Generator.Application.ServiceConfiguration
+namespace Practice_Quiz_Generator.Application.ServiceConfiguration.MapInitializer
 {
     public class MappingProfile : Profile
     {
@@ -11,6 +11,12 @@ namespace Practice_Quiz_Generator.Application.ServiceConfiguration
         {
             CreateMap<FacultyRequestDto, Faculty>();
             CreateMap<Faculty, FacultyResponseDto>();
+            CreateMap<CreateDepartmentRequestDto, Department>();
+            CreateMap<Department, DepartmentResponseDto>();
+            CreateMap<CreateUserRequestDto, User>();
+            CreateMap<User, CreateUserRequestDto>();
+            CreateMap<User,  UserResponseDto>();
+
             //CreateMap<>();
         }
     }
