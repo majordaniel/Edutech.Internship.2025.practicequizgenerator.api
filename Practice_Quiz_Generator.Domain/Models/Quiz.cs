@@ -17,5 +17,7 @@ namespace Practice_Quiz_Generator.Domain.Models
         public Course Course { get; set; }
         //public QuizSetup QuizSetup { get; set; }
         public ICollection<QuizQuestion> QuizQuestion { get; set; }
+        public ICollection<QuizAttempt> QuizAttempts { get; set; } = new List<QuizAttempt>();
+        public ICollection<UserResponse> UserResponses { get; set; } = new List<UserResponse>();
     }
 }

@@ -21,10 +21,11 @@ namespace Practice_Quiz_Generator.Domain.Models
         public Level CurrentLevel { get; set; }
         public Department Department { get; set; }
         public Faculty Faculty { get; set; }
+        public ICollection<UserResponse> UserResponses { get; set; } = new List<UserResponse>();
 
         //public ICollection<StudentCourse> StudentCourses { get; set; }
 
-        //public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
-        //public ICollection<QuizAttempt> QuizAttempts { get; set; } = new List<QuizAttempt>();
+        public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
+        public ICollection<QuizAttempt> QuizAttempts { get; set; } = new List<QuizAttempt>();
     }
 }
