@@ -80,9 +80,8 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
 
         public Task<string> GenerateEmailConfirmationLinkAsync(string email, string token, string scheme)
         {
-            var baseUrl = "cconfirmemail";
+            var baseUrl = "http://apppracticequiz.runasp.net/api/auth/confirmemail";
             //var encodedToken = WebUtility.UrlEncode(token);
-
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
             return Task.FromResult($"{baseUrl}?email={email}&token={encodedToken}");
