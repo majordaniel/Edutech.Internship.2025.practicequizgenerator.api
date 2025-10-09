@@ -15,6 +15,7 @@ namespace Practice_Quiz_Generator.Application.ServiceConfiguration.MapInitialize
             CreateMap<Department, DepartmentResponseDto>();
             CreateMap<CreateUserRequestDto, User>();
             CreateMap<User, CreateUserRequestDto>();
+            CreateMap<User,  UserResponseDto>();
 
             //CreateMap<>();
         }
