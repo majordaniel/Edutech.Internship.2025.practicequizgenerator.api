@@ -44,7 +44,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 message.Body = bodyBuilder.ToMessageBody();
 
                 //using var client = new SmtpClient();
-                using var client = new MailKit.Net.Smtp.SmtpClient();
+                using var client = new SmtpClient();
 
                 // connect based on port
                 if (port == 465)
@@ -91,7 +91,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
         public Task<string> GeneratePasswordResetLinkAsync(string email, string token, string scheme)
         {
             var baseUrl = "https://localhost:7166/api/auth/resetpassword";
-            var encodedToken = WebUtility.UrlEncode(token);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
             return Task.FromResult($"{scheme}://{baseUrl}?email={email}&token={encodedToken}");
         }

@@ -82,9 +82,9 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                     var emailConfirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
                     var confirmationLink = await _emailService.GenerateEmailConfirmationLinkAsync(newUser.Email, emailConfirmationToken, "https");
 
-                    //var emailBody = EmailTemplate.BuildWelcomeEmailTemplate(newUser.FirstName, confirmationLink);
+                    var emailBody = EmailTemplate.BuildWelcomeEmailTemplate(newUser.FirstName, confirmationLink);
 
-                    //await _emailService.SendEmailAsync(newUser.Email, "Confirm Your Email", emailBody);
+                    await _emailService.SendEmailAsync(newUser.Email, "Confirm Your Email", emailBody);
                 }
                 else if (!createdUser.Succeeded)
                 {
