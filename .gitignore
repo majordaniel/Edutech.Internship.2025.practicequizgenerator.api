@@ -369,3 +369,6 @@ Practice_Quiz_Generatorappsettings.*.json
 /Practice_Quiz_Generator/appsettings.Development.json
 /Practice_Quiz_Generator.Infrastructure/Migrations
 /Practice_Quiz_Generator/appsettings.json
+
+# Ignore the DbContext factory
+/Practice_Quiz_Generator.Infrastructure/DatabaseContext/ExamPortalContextFactory.cs

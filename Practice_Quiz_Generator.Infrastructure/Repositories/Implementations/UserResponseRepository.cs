@@ -9,12 +9,12 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
     {
         public UserResponseRepository(ExamPortalContext context) : base(context) { }
 
-        public async Task<IEnumerable<UserResponse>> GetResponsesByQuizAndUserAsync(string quizId, string userId)
-        {
-            return await _context.UserResponses
-                .Where(ur => ur.QuizId == quizId /* && ur.UserId == userId */ )  // UserId not in model; add if needed
-                .ToListAsync();
-        }
+        // public async Task<IEnumerable<UserResponse>> GetResponsesByQuizAndUserAsync(string quizId, string userId)
+        // {
+        //     return await _context.UserResponses
+        //         .Where(ur => ur.QuizId == quizId /* && ur.UserId == userId */ )  // UserId not in model; add if needed
+        //         .ToListAsync();
+        // }
 
         public async Task CreateBulkAsync(IEnumerable<UserResponse> responses)
         {

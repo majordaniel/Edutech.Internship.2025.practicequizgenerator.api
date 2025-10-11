@@ -8,10 +8,25 @@ namespace Practice_Quiz_Generator.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<UserResponse> builder)
         {
+            builder.HasOne(ur => ur.Quiz)
+                   .WithMany(q => q.UserResponses)
+                   .HasForeignKey(ur => ur.QuizId)
+                   .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(ur => ur.QuizQuestion)
+                   .WithMany(qq => qq.UserResponses)
+                   .HasForeignKey(ur => ur.QuizQuestionId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(ur => ur.SelectedOption)
+                   .WithMany()
+                   .HasForeignKey(ur => ur.SelectedOptionId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasOne(ur => ur.User)
-                    .WithMany(u => u.UserResponses)  // Add ICollection<UserResponse> UserResponses to User model
-                    .HasForeignKey(ur => ur.UserId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                   .WithMany(u => u.UserResponses)
+                   .HasForeignKey(ur => ur.UserId)
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

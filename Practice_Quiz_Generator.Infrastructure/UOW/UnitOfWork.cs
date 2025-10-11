@@ -15,8 +15,8 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
         private IUserRepository _userRepository;
         private IQuizRepository _quizRepository;
         private IRefreshTokenRepository _refreshTokenRepository;
-        public IQuizAttemptRepository _quizAttemptRepository { get; }
-        public IUserResponseRepository _userResponseRepository { get; }
+        private IQuizAttemptRepository _quizAttemptRepository;
+        private IUserResponseRepository _userResponseRepository;
 
         public UnitOfWork(ExamPortalContext context)
         {

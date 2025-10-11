@@ -19,7 +19,7 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         //public DbSet<Content> Contents { get; set; }
         //public DbSet<Quiz> Quizzes { get; set; }
-        //public DbSet<Question> Questions { get; set; }
+        // public DbSet<Question> Questions { get; set; }
         public DbSet<QuizAttempt> QuizAttempts { get; set; }
         public DbSet<UserResponse> UserResponses { get; set; }
 
@@ -38,6 +38,8 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
             modelBuilder.ApplyConfiguration(new UserResponseConfiguration());
             //modelBuilder.ApplyConfiguration(new StudentConfiguration());
             //modelBuilder.ApplyConfiguration(new StudentCourseConfiguration());
+            modelBuilder.ApplyConfiguration(new QuizQuestionConfiguration());
+            modelBuilder.ApplyConfiguration(new QuizOptionConfiguration());
 
             foreach (var relationship in modelBuilder.Model.GetEntityTypes()
             .SelectMany(e => e.GetForeignKeys()))
