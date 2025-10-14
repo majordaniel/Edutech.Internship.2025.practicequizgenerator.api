@@ -5,7 +5,7 @@ namespace Practice_Quiz_Generator.Application.Services.Interfaces
 {
     public interface IStudentCourseService
     {
-        Task<StandardResponse<StudentCourseResponseDto>> GetStudentCourseById(string id);
+        Task<StandardResponse<StudentCourseResponseDto>> GetStudentCourseByIdAsync(string id);
         Task<StandardResponse<StudentCourseResponseDto>> GetStudentCoursesAsync(string studentId);
     }
 }

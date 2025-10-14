@@ -40,6 +40,7 @@ namespace Practice_Quiz_Generator.Extensions
             //HR
             services.AddScoped<IQuizRepository, QuizRepository>();
             services.AddScoped<IQuizAttemptRepository, QuizAttemptRepository>();
+            services.AddScoped<IUserService, UserService>();
         }
 
         public static void ConfigureIdentity(this IServiceCollection services)

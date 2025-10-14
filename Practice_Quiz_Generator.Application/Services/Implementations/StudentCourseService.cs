@@ -16,7 +16,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             _unitOfWork = unitOfWork;
         }
 
-        public Task<StandardResponse<StudentCourseResponseDto>> GetStudentCourseById(string id)
+        public Task<StandardResponse<StudentCourseResponseDto>> GetStudentCourseByIdAsync(string id)
         {
             throw new NotImplementedException();
         }
