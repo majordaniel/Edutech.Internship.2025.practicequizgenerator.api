@@ -6,6 +6,8 @@ using Practice_Quiz_Generator.Application.Services.Implementations;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Domain.Models;
 using Practice_Quiz_Generator.Infrastructure.DatabaseContext;
+using Practice_Quiz_Generator.Infrastructure.Repositories.Implementations;
+using Practice_Quiz_Generator.Infrastructure.Repositories.Interfaces;
 using Practice_Quiz_Generator.Infrastructure.UOW;
 using System.Text;
 
@@ -35,6 +37,9 @@ namespace Practice_Quiz_Generator.Extensions
             services.AddScoped<IFileProcessingService, FileProcessingService>();
             services.AddScoped<IQuizService, QuizService>();
             //services.AddScoped<, >();
+            //HR
+            services.AddScoped<IQuizRepository, QuizRepository>();
+            services.AddScoped<IQuizAttemptRepository, QuizAttemptRepository>();
         }
 
         public static void ConfigureIdentity(this IServiceCollection services)

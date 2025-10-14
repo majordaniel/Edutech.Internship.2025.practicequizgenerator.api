@@ -18,6 +18,8 @@ builder.Services.AddHttpClient<IGeminiService, GeminiService>();
 builder.Services.ConfigureJwt(builder.Configuration);
 
 
+
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

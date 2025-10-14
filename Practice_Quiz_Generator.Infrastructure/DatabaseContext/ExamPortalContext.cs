@@ -34,7 +34,7 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
             modelBuilder.ApplyConfiguration(new DepartmentConfiguration());
             modelBuilder.ApplyConfiguration(new CourseConfiguration());
             modelBuilder.ApplyConfiguration(new LevelConfiguration());
-            //modelBuilder.ApplyConfiguration(new StudentConfiguration());
+            modelBuilder.ApplyConfiguration(new StudentConfiguration());
             //modelBuilder.ApplyConfiguration(new StudentCourseConfiguration());
 
             foreach (var relationship in modelBuilder.Model.GetEntityTypes()

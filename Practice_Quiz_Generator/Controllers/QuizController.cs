@@ -3,6 +3,7 @@ using Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtensions
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Shared.DTOs;
 using Practice_Quiz_Generator.Shared.DTOs.Request;
+using System.Security.Claims;
 
 namespace Practice_Quiz_Generator.Controllers
 {
@@ -12,12 +13,13 @@ namespace Practice_Quiz_Generator.Controllers
     {
         private readonly IQuizService _quizService;
         private readonly IFileProcessingService _fileProcessingService;
+        private readonly ILogger<QuizController> _logger;
 
-        public QuizController(IQuizService quizService, IFileProcessingService fileProcessingService)
+        public QuizController(IQuizService quizService, IFileProcessingService fileProcessingService, ILogger<QuizController> logger)
         {
             _quizService = quizService;
             _fileProcessingService = fileProcessingService;
-
+            _logger = logger;
         }
 
         [HttpPost("generatefromfile")]
@@ -65,6 +67,91 @@ namespace Practice_Quiz_Generator.Controllers
             return Ok( result);
         }
 
+        [HttpGet("{quizId}/details")]
+        public async Task<IActionResult> GetQuizDetails(string quizId)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "User not authenticated" });
+                }
+
+                var result = await _quizService.GetQuizDetailsAsync(quizId, userId);
+
+                if (!result.Succeeded)
+                {
+                    return StatusCode((int)result.StatusCode, result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting quiz details for quiz {QuizId}", quizId);
+                return StatusCode(500, new { message = "An internal server error occurred" });
+            }
+        }
+
+        [HttpPost("submit")]
+        public async Task<IActionResult> SubmitQuiz([FromBody] SubmitQuizRequestDto request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "User not authenticated" });
+                }
+
+                var result = await _quizService.SubmitQuizAsync(request, userId);
+
+                if (!result.Succeeded)
+                {
+                    return StatusCode((int)result.StatusCode, result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error submitting quiz");
+                return StatusCode(500, new { message = "An internal server error occurred" });
+            }
+        }
+
+        [HttpGet("history")]
+        public async Task<IActionResult> GetQuizHistory()
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "User not authenticated" });
+                }
+
+                var result = await _quizService.GetQuizHistoryAsync(userId);
+
+                if (!result.Succeeded)
+                {
+                    return StatusCode((int)result.StatusCode, result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting quiz history");
+                return StatusCode(500, new { message = "An internal server error occurred" });
+            }
+        }
 
     }
 }

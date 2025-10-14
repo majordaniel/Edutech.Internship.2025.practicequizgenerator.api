@@ -22,6 +22,10 @@ namespace Practice_Quiz_Generator.Domain.Models
         public Department Department { get; set; }
         public Faculty Faculty { get; set; }
 
+        // Password Reset fields
+        public string? ResetToken { get; set; }
+        public DateTime? ResetTokenExpiry { get; set; }
+
         //public ICollection<StudentCourse> StudentCourses { get; set; }
 
         //public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();

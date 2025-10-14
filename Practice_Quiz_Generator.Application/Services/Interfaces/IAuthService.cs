@@ -10,8 +10,8 @@ namespace Practice_Quiz_Generator.Application.Services.Interfaces
     {
         Task<StandardResponse<UserResponseDto>> RegisterAsync(CreateUserRequestDto userRequest);
         Task<StandardResponse<ConfirmEmailResponseDto>> ConfirmEmailAsync(string email, string token);
-        //Task<StandardResponse<string>> ForgotPasswordAsync(string email);
-        //Task<StandardResponse<string>> ResetPasswordAsync(ResetPasswordRequestDto request);
+        Task<StandardResponse<string>> ForgotPasswordAsync(string email);
+        Task<StandardResponse<string>> ResetPasswordAsync(ResetPasswordRequestDto request);
         Task<StandardResponse<TokenDto>> LoginAsync(LoginRequestDto request);
         Task<StandardResponse<TokenDto>> RefreshTokenAsync(TokenDto tokenDto);
 

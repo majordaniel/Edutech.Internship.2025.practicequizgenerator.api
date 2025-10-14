@@ -3,16 +3,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Practice_Quiz_Generator.Domain.Models
 {
-    public class QuizAttempt
+    public class QuizAttempt : BaseEntity
     {
-        public int QuizId { get; set; }
-        public int UserId { get; set; }
+        public string QuizId { get; set; }
+        public required string UserId { get; set; }
         public int Score { get; set; }
-        //public DateTime AttemptDate { get; set; }
+        public DateTime AttemptDate { get; set; }
         public int TimeSpent { get; set; }
         public required string Answer { get; set; }
 
         public required Quiz Quiz { get; set; }
-        public required User User { get; set; }
+        public  User? User { get; set; }
+        
+        
     }
 }
