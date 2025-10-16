@@ -7,5 +7,6 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Interfaces
     {
         Task<User> FindUserByEmail(string email);
         Task<User> FindUserById(string id);
+        void AttachAsUnchanged(User user);
     }
 }

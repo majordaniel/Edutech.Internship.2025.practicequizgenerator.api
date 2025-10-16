@@ -21,5 +21,13 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
             return await FindByCondition(u => u.Email == email, false)
                  .FirstOrDefaultAsync();
         }
+
+        public void AttachAsUnchanged(User user)
+        {
+            if (user != null)
+            {
+                _context.Entry(user).State = EntityState.Unchanged;
+            }
+        }
     }
 }

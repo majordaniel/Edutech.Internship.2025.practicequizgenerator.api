@@ -385,6 +385,8 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 if (user == null)
                     return StandardResponse<QuizResultsResponseDto>.Failed("User not found");
 
+                _unitOfWork.UserRepository.AttachAsUnchanged(user);
+
                 // Check if already attempted (optional)
                 var existingAttempt = await _unitOfWork.QuizAttemptRepository.GetAttemptByQuizAndUserAsync(request.QuizId, request.UserId);
                 if (existingAttempt != null)
