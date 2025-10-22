@@ -1,7 +1,8 @@
 ﻿namespace Practice_Quiz_Generator.Domain.Models
 {
     public class QuizQuestion
-    {
+    {   
+        public int Id { get; set; }
         public string Text { get; set; }
         public int ScoreValue { get; set; }
         public string QuizId { get; set; }
