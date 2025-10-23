@@ -169,7 +169,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 //    UserId = quizRequest.UserId,
                 //    QuizQuestion = quizResponse.Questions.Select(q => new QuizQuestion
                 //    {
-                //        QuestionText = q.Question,
+                //        QuestionText = q.QuestionBank,
                 //        QuizOption = q.Options.Select((opt, index) => new QuizOption
                 //        {
                 //            QuizOptionText = opt,
