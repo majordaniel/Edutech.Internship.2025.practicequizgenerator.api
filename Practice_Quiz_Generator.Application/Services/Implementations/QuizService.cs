@@ -20,13 +20,13 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<StandardResponse<QuizResponseDto>> CreateQuizAsync(QuizAndPersistRequestDto quizRequest)
+        public async Task<StandardResponse<QuizResponseDto>> GenerateQuizAsync(QuizAndPersistRequestDto quizRequest)
         {//Reminder -->> Separate concerns base on question type and source
             try
             {
                 if (quizRequest.NumberOfQuestions <= 5)
                 {
-                    return StandardResponse<QuizResponseDto>.Failed("Number of questions must be greater than 5");
+                    return StandardResponse<QuizResponseDto>.Failed("Number of questions cannot be less than 5");
                 }
 
                 var course = await _unitOfWork.CourseRepository.FindCourseById(quizRequest.CourseId);
@@ -44,16 +44,16 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
 
                 CreateQuizResponseDto quizResponse;
 
-                //var questionSource = quizRequest.QuestionSource.ToLower();
+                var questionSource = quizRequest.QuestionSource.Replace(" ", string.Empty);
 
-                if (quizRequest.QuestionSource.Equals("FileUpload", StringComparison.OrdinalIgnoreCase))
+                if (questionSource.Equals("FileUpload", StringComparison.OrdinalIgnoreCase))
                 {
                     if (quizRequest == null || string.IsNullOrWhiteSpace(quizRequest.UploadedText))
                     {
                         return StandardResponse<QuizResponseDto>.Failed("Uploaded text cannot be empty");
                     }
 
-                    var prompt = PromptTemplates.BuildQuizPrompt(
+                    var prompt = PromptTemplates.GenerateFromUploadPrompt(
                         quizRequest.UploadedText,
                         quizRequest.NumberOfQuestions
                     );
@@ -61,10 +61,10 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                     var rawResponse = await _geminiService.GetLLMResponseAsync(prompt);
                     quizResponse = Parse(rawResponse);
                 }
-                else if (quizRequest.QuestionSource.Equals("QuestionBank", StringComparison.OrdinalIgnoreCase))
+                else if (questionSource.Equals("QuestionBank", StringComparison.OrdinalIgnoreCase))
                 {
                     var questions = await _unitOfWork.QuestionBankRepository
-                        .FindAllQuestionByCourseId(quizRequest.CourseId);
+                        .FindRandomQuestionsByCourseId(quizRequest.CourseId, quizRequest.NumberOfQuestions);
 
                     if (questions == null || !questions.Any())
                         return StandardResponse<QuizResponseDto>.Failed("No questions found in question bank for this course.");
@@ -73,16 +73,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                         $"Question: {q.Text}\nOptions: {string.Join(", ", q.Option.Select(o => o.OptionText))}\nCorrect Answer: {questions.FirstOrDefault()?.Option.FirstOrDefault(o => o.IsCorrect)?.OptionText}"
                     ));
 
-                    /*       var prompt = $"""
-                           You are an expert quiz creator.
-                           Using the following question bank, generate {quizRequest.NumberOfQuestions} unique quiz questions.
-                           Format output as JSON array with "Question", "Options", and "CorrectOptionIndex".
-
-                           Question Bank:
-                           {questionBankText}
-                           """;*/
-
-                    var prompt = PromptTemplates.BuildQuizPrompt(
+                    var prompt = PromptTemplates.GenerateFromQuestionBankPrompt(
                         questionBankText,
                         quizRequest.NumberOfQuestions
                     );
@@ -98,27 +89,6 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
 
                 if (quizResponse?.Questions == null || !quizResponse.Questions.Any())
                     return StandardResponse<QuizResponseDto>.Failed("Failed to generate questions from AI");
-
-
-
-
-                //    var prompt = PromptTemplates.BuildQuizPrompt(
-                //    quizRequest.UploadedText,
-                //    quizRequest.NumberOfQuestions
-                //);
-
-                //var rawResponse = await _geminiService.GetLLMResponseAsync(
-                //    prompt
-                //);
-
-                //var quizResponse = Parse(rawResponse);
-
-                //if (quizResponse.Questions == null || !quizResponse.Questions.Any())
-                //{
-                //    return StandardResponse<QuizResponseDto>.Failed("Failed to generate questions from AI");
-                //}
-
-
 
                 var quiz = new Quiz
                 {
@@ -177,7 +147,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
         }
        
 
-        public async Task<StandardResponse<CreateQuizResponseDto>> GenerateQuizAsync(QuizRequestDto quizRequest)
+     /*   public async Task<StandardResponse<CreateQuizResponseDto>> GenerateQuizAsync(QuizRequestDto quizRequest)
         {//Reminder -->> Separate concerns base on question type and source
             try
             {
@@ -190,7 +160,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 {
                     return StandardResponse<CreateQuizResponseDto>.Failed("Number of questions must be greater than 5");
                 }
-                var prompt = PromptTemplates.BuildQuizPrompt(
+                var prompt = PromptTemplates.GenerateFromUploadPrompt(
                 quizRequest.UploadedText,
                 quizRequest.NumberOfQuestions
             );
@@ -250,7 +220,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             {
                 return StandardResponse<CreateQuizResponseDto>.Failed($"{ex.Message}");
             }
-        }
+        } */
 
 
 

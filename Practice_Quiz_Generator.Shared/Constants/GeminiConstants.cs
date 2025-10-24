@@ -8,7 +8,7 @@
 
     public static class PromptTemplates
     {
-        public static string BuildQuizPrompt(string uploadedText, int numberOfQuestions)
+        public static string GenerateFromUploadPrompt(string uploadedText, int numberOfQuestions)
         {
             return $@"
 Generate {numberOfQuestions} multiple-choice questions 
@@ -27,27 +27,28 @@ Respond ONLY in strict JSON with this schema:
   ]
 }}";
         }
-//        public static string BuildQuizPrompt(string studyMaterial, int numberOfQuestions)
-//        {
-//            return $@"
-//You are a quiz generator. 
-//Generate exactly {numberOfQuestions} multiple-choice questions in JSON format.
+        public static string GenerateFromQuestionBankPrompt(string questions, int numberOfQuestions)
+        {
+            return $@"
+Generate {numberOfQuestions} multiple-choice questions 
+from the following content:
 
-//The JSON schema must follow this structure:
-//{{
-//  ""questions"": [
-//    {{
-//      ""question"": ""string"",
-//      ""options"": [""string"", ""string"", ""string"", ""string""],
-//      ""correctOptionIndex"": int
-//    }}
-//  ]
-//}}
+{questions}
 
-//Study Material:
-//{studyMaterial}
-//";
-//        }
+Before returning, **rephrase each question and its options** in your own words while preserving their original meaning.
+
+Respond ONLY in strict JSON with this schema:
+{{
+  ""questions"": [
+    {{
+      ""question"": ""string"",
+      ""options"": [""string"", ""string"", ""string"", ""string""],
+      ""correctOptionIndex"": int
+    }}
+  ]
+}}";
+
+        }
 
     }
 }

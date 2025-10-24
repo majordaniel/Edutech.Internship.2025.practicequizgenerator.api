@@ -38,5 +38,16 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<QuestionBank>> FindRandomQuestionsByCourseId(string courseId, int count)
+        {
+            return await _context.QuestionBank
+                .Where(q => q.CourseId == courseId)
+                .OrderBy(q => Guid.NewGuid())
+                .Take(count)
+                .Include(q => q.Option)
+                .ToListAsync();
+        }
+
     }
 }

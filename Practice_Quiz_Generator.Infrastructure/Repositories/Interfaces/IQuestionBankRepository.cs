@@ -8,5 +8,6 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Interfaces
         Task<IEnumerable<QuestionBank>> FindAllQuestionWithOption();
         Task<IEnumerable<QuestionBank>> FindAllQuestionByCourseId(string courseId);
         Task<IEnumerable<QuestionBank>> FindAllQuestionByCourseTitle(string courseTitle);
+        Task<IEnumerable<QuestionBank>> FindRandomQuestionsByCourseId(string courseId, int count);
     }
 }
