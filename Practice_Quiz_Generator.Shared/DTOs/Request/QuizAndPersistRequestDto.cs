@@ -10,7 +10,7 @@ namespace Practice_Quiz_Generator.Shared.DTOs.Request
         public int Timer { get; set; }
         public string UserId { get; set; }
         public string CourseId { get; set; }
-        public string UploadedText { get; set; }
+        public string? UploadedText { get; set; }
         //public IFormFile File { get; set; }
     }
 }
