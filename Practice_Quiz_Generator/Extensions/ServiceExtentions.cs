@@ -17,10 +17,18 @@ namespace Practice_Quiz_Generator.Extensions
     {
         public static void ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ExamPortalContext>(options => 
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
-            .LogTo(Console.WriteLine, LogLevel.Information)
-           .EnableSensitiveDataLogging());
+            services.AddDbContext<ExamPortalContext>(options =>
+                options.UseSqlServer(
+                    configuration.GetConnectionString("DefaultConnection"),
+                    sql => sql.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(10),
+                        errorNumbersToAdd: null
+                    )
+                )
+                .LogTo(Console.WriteLine, LogLevel.Information)
+                .EnableSensitiveDataLogging()
+            );
         }
 
 
@@ -64,8 +72,8 @@ namespace Practice_Quiz_Generator.Extensions
             services.AddCors(option =>
             {
                 option.AddPolicy("CorsPolicy", builder => builder
-                .AllowAnyHeader()
                 .AllowAnyOrigin()
+                .AllowAnyHeader()
                 .AllowAnyMethod());
             });
         }
