@@ -3,6 +3,7 @@ using Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtensions
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Shared.DTOs;
 using Practice_Quiz_Generator.Shared.DTOs.Request;
+using System.Security.Claims;
 
 namespace Practice_Quiz_Generator.Controllers
 {
@@ -12,12 +13,13 @@ namespace Practice_Quiz_Generator.Controllers
     {
         private readonly IQuizService _quizService;
         private readonly IFileProcessingService _fileProcessingService;
+        private readonly ILogger<QuizController> _logger;
 
         public QuizController(IQuizService quizService, IFileProcessingService fileProcessingService, ILogger<QuizController> logger)
         {
             _quizService = quizService;
             _fileProcessingService = fileProcessingService;
-
+            _logger = logger;
         }
 
         //[HttpPost("generatefromfile")]
