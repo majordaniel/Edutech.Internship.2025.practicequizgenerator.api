@@ -3,7 +3,6 @@ using Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtensions
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Shared.DTOs;
 using Practice_Quiz_Generator.Shared.DTOs.Request;
-using System.Security.Claims;
 
 namespace Practice_Quiz_Generator.Controllers
 {
@@ -13,42 +12,44 @@ namespace Practice_Quiz_Generator.Controllers
     {
         private readonly IQuizService _quizService;
         private readonly IFileProcessingService _fileProcessingService;
-        private readonly ILogger<QuizController> _logger;
 
         public QuizController(IQuizService quizService, IFileProcessingService fileProcessingService, ILogger<QuizController> logger)
         {
             _quizService = quizService;
             _fileProcessingService = fileProcessingService;
-            _logger = logger;
+
         }
 
-        [HttpPost("generatefromfile")]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> GenerateQuizFromFile([FromForm] QuizUploadRequestDto quizUploadRequest)
-        {
-            if (quizUploadRequest.File == null || quizUploadRequest.File.Length == 0)
-                return BadRequest("No file uploaded");
+        //[HttpPost("generatefromfile")]
+        //[Consumes("multipart/form-data")]
+        //public async Task<IActionResult> GenerateQuizFromFile([FromForm] QuizUploadRequestDto quizUploadRequest)
+        //{
+        //    if (quizUploadRequest.File == null || quizUploadRequest.File.Length == 0)
+        //        return BadRequest("No file uploaded");
 
-            var text = await _fileProcessingService.ExtractTextAsync(quizUploadRequest.File);
+        //    var text = await _fileProcessingService.ExtractTextAsync(quizUploadRequest.File);
 
-            var request = quizUploadRequest.ToQuizRequestDto();
-            request.UploadedText = text;
-            var result = await _quizService.GenerateQuizAsync(request);
-            return Ok(result);
-        }
+        //    var request = quizUploadRequest.ToQuizRequestDto();
+        //    request.UploadedText = text;
+        //    var result = await _quizService.GenerateQuizAsync(request);
+        //    return Ok(result);
+        //}
 
-        [HttpPost("createfromfile/persist")]
+        [HttpPost("generate")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> CreateQuizFromFile([FromForm] QuizPersistUploadRequestDto quizUploadRequest)
         {
-            if (quizUploadRequest.File == null || quizUploadRequest.File.Length == 0)
-                return BadRequest("No file uploaded");
-
-            var text = await _fileProcessingService.ExtractTextAsync(quizUploadRequest.File);
+            //if (quizUploadRequest.File == null || quizUploadRequest.File.Length == 0)
+            //    return BadRequest("No file uploaded");
+            string text = null;
+            if (quizUploadRequest.QuestionSource.Equals("FileUpload", StringComparison.OrdinalIgnoreCase))
+            {
+                text = await _fileProcessingService.ExtractTextAsync(quizUploadRequest.File);
+            }
 
             var request = quizUploadRequest.ToQuizPersistRequestDto();
             request.UploadedText = text;
-            var result = await _quizService.CreateQuizAsync(request);
+            var result = await _quizService.GenerateQuizAsync(request);
             return Ok(result);
         }
 

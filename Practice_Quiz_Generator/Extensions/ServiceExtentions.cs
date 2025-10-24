@@ -49,14 +49,16 @@ namespace Practice_Quiz_Generator.Extensions
             services.AddScoped<IQuizRepository, QuizRepository>();
             services.AddScoped<IQuizAttemptRepository, QuizAttemptRepository>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IQuestionBankService, QuestionBankService>();
+            services.AddScoped<IExcelService, ExcelService>();
         }
 
         public static void ConfigureIdentity(this IServiceCollection services)
         {
             var builder = services.AddIdentity<User, IdentityRole>(i =>
             {
-                i.Password.RequireDigit = true;
-                i.Password.RequireLowercase = false;
+                i.Password.RequireDigit = true; 
+                i.Password.RequireLowercase = false; 
                 i.Password.RequireUppercase = false;
                 i.Password.RequireNonAlphanumeric = false;
                 i.Password.RequiredLength = 8;

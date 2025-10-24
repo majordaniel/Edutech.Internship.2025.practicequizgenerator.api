@@ -11,7 +11,7 @@ namespace Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtens
             {
                 NumberOfQuestions = quizUploadRequest.NumberOfQuestions,
                 QuestionType = "MCQ",
-                QuestionSource = "UCM",
+                QuestionSource = quizUploadRequest.QuestionSource,
                 Timer = quizUploadRequest.Timer,
                 UserId = quizUploadRequest.UserId,
                 CourseId = quizUploadRequest.CourseId,

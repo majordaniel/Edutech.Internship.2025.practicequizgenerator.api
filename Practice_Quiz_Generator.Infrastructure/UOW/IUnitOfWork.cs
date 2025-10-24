@@ -12,6 +12,7 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
         IUserRepository UserRepository { get; }
         IQuizRepository QuizRepository { get; }
         IRefreshTokenRepository RefreshTokenRepository { get; }
+        IQuestionBankRepository QuestionBankRepository { get; }
         Task SaveChangesAsync();
     }
 }
