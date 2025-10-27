@@ -7,12 +7,10 @@ namespace Practice_Quiz_Generator.Controllers
     [ApiController]
     public class HealthController : ControllerBase
     {
-
         [HttpGet("/health")]
         public IActionResult HealthCheck()
         {
             return Ok(new { status = "Healthy", service = "Practice Quiz Generator", timeStamp = DateTime.UtcNow });
         }
-
     }
 }

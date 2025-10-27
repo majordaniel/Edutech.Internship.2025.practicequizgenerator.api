@@ -1,20 +1,21 @@
-using System;
-using System.ComponentModel.DataAnnotations;
-
 namespace Practice_Quiz_Generator.Domain.Models
 {
-    public class Quiz
+    public class Quiz : BaseEntity
     {
-        [Key]
-        public int QuizId { get; set; }
-        public int UserId { get; set; }
-        public int ContentId { get; set; }
-        public DateTime GeneratedDate { get; set; }
-        public required string Status { get; set; } 
-
-        public required User User { get; set; }
-        public required Content Content { get; set; }
-        public ICollection<Question> Questions { get; set; } 
-        public ICollection<QuizAttempt> QuizAttempts { get; set; } 
+        public string Title { get; set; }
+        public bool? IsCompleted { get; set; }
+        public int? TimeSpent { get; set; }
+        //public string? SouceText { get; set; }
+        public string QuestionType { get; set; }
+        public int NumberOfQuestions { get; set; }
+        public string QuestionSource { get; set; } //File upload
+        public int Timer { get; set; }
+        public string CourseId { get; set; }
+        //public string QuizSetupId { get; set; }
+        public string UserId { get; set; }
+        public User User { get; set; }
+        public Course Course { get; set; }
+        //public QuizSetup QuizSetup { get; set; }
+        public ICollection<QuizQuestion> QuizQuestion { get; set; }
     }
 }
