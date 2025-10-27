@@ -15,6 +15,7 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
         private IUserRepository _userRepository;
         private IQuizRepository _quizRepository;
         private IRefreshTokenRepository _refreshTokenRepository;
+        private IQuestionBankRepository _questionBankRepository;
 
         public UnitOfWork(ExamPortalContext context)
         {
@@ -101,7 +102,15 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
             } 
         }
 
-
+        public IQuestionBankRepository QuestionBankRepository
+        {
+            get
+            {
+                if (_questionBankRepository == null)
+                    _questionBankRepository = new QuestionBankRepository(_context);
+                return _questionBankRepository;
+            }
+        }
 
         public async Task SaveChangesAsync()
         {

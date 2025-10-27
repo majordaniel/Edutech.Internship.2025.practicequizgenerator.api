@@ -44,7 +44,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 message.Body = bodyBuilder.ToMessageBody();
 
                 //using var client = new SmtpClient();
-                using var client = new MailKit.Net.Smtp.SmtpClient();
+                using var client = new SmtpClient();
 
                 // connect based on port
                 if (port == 465)

@@ -13,7 +13,6 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
         {
             return await FindByCondition(u => u.Id == id, false)
                 .FirstOrDefaultAsync();
-                 
         }
 
         public async Task<User> FindUserByEmail(string email)

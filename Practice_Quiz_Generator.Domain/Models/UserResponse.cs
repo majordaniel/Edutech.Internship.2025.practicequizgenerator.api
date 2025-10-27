@@ -8,7 +8,7 @@
         public string SelectedOptionId { get; set; }
         /*public int UserId { get; set; }*/
         public Quiz Quiz { get; set; }
-        public Question Question { get; set; }
+        public QuestionBank Question { get; set; }
         public QuizOption SelectedOption { get; set; }
         /*        public User User { get; set; }*/
     }

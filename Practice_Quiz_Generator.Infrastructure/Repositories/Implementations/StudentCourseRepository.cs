@@ -12,9 +12,13 @@ namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
         public async Task<StudentCourse> FindStudentCourseById(string id)
         {
             return await FindByCondition(sc => sc.Id == id, false)
-                .FirstOrDefaultAsync();
-                
-                 
+                .FirstOrDefaultAsync();                 
+        }
+
+        public async Task<bool> IsCourseAlreadyRegistered(string studentId, string courseId)
+        {
+            return await _context.StudentCourses
+                .AnyAsync(sc => sc.StudentId == studentId && sc.CourseId == courseId);
         }
     }
 }

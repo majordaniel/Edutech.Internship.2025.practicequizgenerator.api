@@ -29,33 +29,13 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             _logger = logger;
         }
 
-        public async Task<StandardResponse<QuizResponseDto>> CreateQuizAsync(QuizAndPersistRequestDto quizRequest)
+        public async Task<StandardResponse<QuizResponseDto>> GenerateQuizAsync(QuizAndPersistRequestDto quizRequest)
         {//Reminder -->> Separate concerns base on question type and source
             try
             {
-                if (quizRequest == null || string.IsNullOrWhiteSpace(quizRequest.UploadedText))
-                {
-                    return StandardResponse<QuizResponseDto>.Failed("Uploaded text cannot be empty");
-                }
-
                 if (quizRequest.NumberOfQuestions <= 5)
                 {
-                    return StandardResponse<QuizResponseDto>.Failed("Number of questions must be greater than 5");
-                }
-                var prompt = PromptTemplates.BuildQuizPrompt(
-                quizRequest.UploadedText,
-                quizRequest.NumberOfQuestions
-            );
-
-                var rawResponse = await _geminiService.GetLLMResponseAsync(
-                    prompt
-                );
-
-                var quizResponse = Parse(rawResponse);
-
-                if (quizResponse.Questions == null || !quizResponse.Questions.Any())
-                {
-                    return StandardResponse<QuizResponseDto>.Failed("Failed to generate questions from AI");
+                    return StandardResponse<QuizResponseDto>.Failed("Number of questions cannot be less than 5");
                 }
 
                 var course = await _unitOfWork.CourseRepository.FindCourseById(quizRequest.CourseId);
@@ -70,6 +50,54 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 {
                     return StandardResponse<QuizResponseDto>.Failed("User not found");
                 }
+
+                CreateQuizResponseDto quizResponse;
+
+                var questionSource = quizRequest.QuestionSource.Replace(" ", string.Empty);
+
+                if (questionSource.Equals("FileUpload", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (quizRequest == null || string.IsNullOrWhiteSpace(quizRequest.UploadedText))
+                    {
+                        return StandardResponse<QuizResponseDto>.Failed("Uploaded text cannot be empty");
+                    }
+
+                    var prompt = PromptTemplates.GenerateFromUploadPrompt(
+                        quizRequest.UploadedText,
+                        quizRequest.NumberOfQuestions
+                    );
+
+                    var rawResponse = await _geminiService.GetLLMResponseAsync(prompt);
+                    quizResponse = Parse(rawResponse);
+                }
+                else if (questionSource.Equals("QuestionBank", StringComparison.OrdinalIgnoreCase))
+                {
+                    var questions = await _unitOfWork.QuestionBankRepository
+                        .FindRandomQuestionsByCourseId(quizRequest.CourseId, quizRequest.NumberOfQuestions);
+
+                    if (questions == null || !questions.Any())
+                        return StandardResponse<QuizResponseDto>.Failed("No questions found in question bank for this course.");
+
+                    var questionBankText = string.Join("\n\n", questions.Select(q =>
+                        $"Question: {q.Text}\nOptions: {string.Join(", ", q.Option.Select(o => o.OptionText))}\nCorrect Answer: {questions.FirstOrDefault()?.Option.FirstOrDefault(o => o.IsCorrect)?.OptionText}"
+                    ));
+
+                    var prompt = PromptTemplates.GenerateFromQuestionBankPrompt(
+                        questionBankText,
+                        quizRequest.NumberOfQuestions
+                    );
+
+
+                    var rawResponse = await _geminiService.GetLLMResponseAsync(prompt);
+                    quizResponse = Parse(rawResponse);
+                }
+                else
+                {
+                    return StandardResponse<QuizResponseDto>.Failed("Unsupported question source");
+                }
+
+                if (quizResponse?.Questions == null || !quizResponse.Questions.Any())
+                    return StandardResponse<QuizResponseDto>.Failed("Failed to generate questions from AI");
 
                 var quiz = new Quiz
                 {
@@ -126,9 +154,9 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 return StandardResponse<QuizResponseDto>.Failed($"{ex.Message}");
             }
         }
+       
 
-
-        public async Task<StandardResponse<CreateQuizResponseDto>> GenerateQuizAsync(QuizRequestDto quizRequest)
+     /*   public async Task<StandardResponse<CreateQuizResponseDto>> GenerateQuizAsync(QuizRequestDto quizRequest)
         {//Reminder -->> Separate concerns base on question type and source
             try
             {
@@ -141,7 +169,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 {
                     return StandardResponse<CreateQuizResponseDto>.Failed("Number of questions must be greater than 5");
                 }
-                var prompt = PromptTemplates.BuildQuizPrompt(
+                var prompt = PromptTemplates.GenerateFromUploadPrompt(
                 quizRequest.UploadedText,
                 quizRequest.NumberOfQuestions
             );
@@ -178,7 +206,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 //    UserId = quizRequest.UserId,
                 //    QuizQuestion = quizResponse.Questions.Select(q => new QuizQuestion
                 //    {
-                //        QuestionText = q.Question,
+                //        QuestionText = q.QuestionBank,
                 //        QuizOption = q.Options.Select((opt, index) => new QuizOption
                 //        {
                 //            QuizOptionText = opt,
@@ -190,7 +218,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 //await _unitOfWork.QuizRepository.CreateAsync(quiz);
                 //await _unitOfWork.SaveChangesAsync();
 
-     
+
 
                 return StandardResponse<CreateQuizResponseDto>.Success("Quiz generated successfully",
                     quizResponse
@@ -201,7 +229,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             {
                 return StandardResponse<CreateQuizResponseDto>.Failed($"{ex.Message}");
             }
-        }
+        } */
 
 
 
