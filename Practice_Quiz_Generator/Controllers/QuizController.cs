@@ -44,7 +44,8 @@ namespace Practice_Quiz_Generator.Controllers
             //if (quizUploadRequest.File == null || quizUploadRequest.File.Length == 0)
             //    return BadRequest("No file uploaded");
             string text = null;
-            if (quizUploadRequest.QuestionSource.Equals("FileUpload", StringComparison.OrdinalIgnoreCase))
+            var questionSource = quizUploadRequest.QuestionSource.Replace(" ", string.Empty);
+            if (questionSource.Equals("FileUpload", StringComparison.OrdinalIgnoreCase))
             {
                 text = await _fileProcessingService.ExtractTextAsync(quizUploadRequest.File);
             }

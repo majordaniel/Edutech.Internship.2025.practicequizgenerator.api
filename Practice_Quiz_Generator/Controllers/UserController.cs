@@ -38,9 +38,9 @@ namespace Practice_Quiz_Generator.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllUsers(string id)
+        public async Task<IActionResult> GetAllUsers()
         {
-            var result = await _userService.GetUserByIdAsync(id);
+            var result = await _userService.GetAllUsersAsync();
             return Ok(result);
         }
 
