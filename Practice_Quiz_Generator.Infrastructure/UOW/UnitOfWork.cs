@@ -1,4 +1,5 @@
-﻿using Practice_Quiz_Generator.Infrastructure.DatabaseContext;
+﻿using System.Threading.Tasks;
+using Practice_Quiz_Generator.Infrastructure.DatabaseContext;
 using Practice_Quiz_Generator.Infrastructure.Repositories.Implementations;
 using Practice_Quiz_Generator.Infrastructure.Repositories.Interfaces;
 
@@ -17,6 +18,7 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
         private IRefreshTokenRepository _refreshTokenRepository;
         private IQuizAttemptRepository _quizAttemptRepository;
         private IUserResponseRepository _userResponseRepository;
+        private IQuestionBankRepository _questionBankRepository;
 
         public UnitOfWork(ExamPortalContext context)
         {
@@ -102,7 +104,6 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
                 return _refreshTokenRepository; 
             } 
         }
-
         public IQuizAttemptRepository QuizAttemptRepository
         {
             get
@@ -122,10 +123,19 @@ namespace Practice_Quiz_Generator.Infrastructure.UOW
                 return _userResponseRepository;
             }
         }
-
+        public IQuestionBankRepository QuestionBankRepository
+        {
+            get
+            {
+                if (_questionBankRepository == null)
+                    _questionBankRepository = new QuestionBankRepository(_context);
+                return _questionBankRepository;
+            }
+        }
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
         }
     }
 }
+

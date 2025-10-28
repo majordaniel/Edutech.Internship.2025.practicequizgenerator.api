@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
@@ -124,39 +125,45 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             return StandardResponse<ConfirmEmailResponseDto>.Success("Email confirmed successfully.", new ConfirmEmailResponseDto { Email = user.Email, IsConfirmed = true });
         }
 
-        //public async Task<StandardResponse<string>> ForgotPasswordAsync(string email)
-        //{
-        //    var user = await _userManager.FindByEmailAsync(email);
-        //    if (user == null)
-        //    {
-        //        return StandardResponse<string>.Failed("No account found with this email.");
-        //    }
-        //    if (!await _userManager.IsEmailConfirmedAsync(user))
-        //    {
-        //        return StandardResponse<string>.Failed("Email not confirmed. Please confirm your email before resetting password.");
-        //    }
+        public async Task<StandardResponse<string>> ForgotPasswordAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return StandardResponse<string>.Failed("No account found with this email.");
+            }
+            if (!await _userManager.IsEmailConfirmedAsync(user))
+            {
+                return StandardResponse<string>.Failed("Email not confirmed. Please confirm your email before resetting password.");
+            }
 
-        //    var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-        //    var resetLink = await _emailService.GeneratePasswordResetLinkAsync(user.Email, resetToken, "https");
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            user.ResetToken = resetToken;
+            user.ResetTokenExpiry = DateTime.UtcNow.AddHours(1);
 
-        //    await _emailService.SendEmailAsync(user.Email, "Reset Your Password", $"Reset your password: <a href='{resetLink}'>Click here</a>");
+            var resetLink = await _emailService.GeneratePasswordResetLinkAsync(user.Email, resetToken, "https");
 
-        //    return StandardResponse<string>.Success("Password reset link has been sent to your email.", resetLink);
-        //}
+            await _emailService.SendEmailAsync(user.Email, "Reset Your Password", $"Reset your password: <a href='{resetLink}'>Click here</a>");
 
-        //public async Task<StandardResponse<string>> ResetPasswordAsync(ResetPasswordRequestDto request)
-        //{
-        //    var user = await _userManager.FindByEmailAsync(request.Email);
-        //    if (user == null)
-        //        return StandardResponse<string>.Failed("Invalid email.");
+            return StandardResponse<string>.Success("Password reset link has been sent to your email.", resetLink);
 
-        //    var result = await _userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
+            await _userManager.UpdateAsync(user);
+        }
 
-        //    if (!result.Succeeded)
-        //        return StandardResponse<string>.Failed("Password reset failed. Token may be invalid or expired.");
 
-        //    return StandardResponse<string>.Success("Password has been reset successfully.", user.Email);
-        //}
+        public async Task<StandardResponse<string>> ResetPasswordAsync(ResetPasswordRequestDto request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+                return StandardResponse<string>.Failed("Invalid email.");
+
+            var result = await _userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
+
+            if (!result.Succeeded)
+                return StandardResponse<string>.Failed("Password reset failed. Token may be invalid or expired.");
+
+            return StandardResponse<string>.Success("Password has been reset successfully.", user.Email);
+        }
 
         public async Task<StandardResponse<TokenDto>> LoginAsync(LoginRequestDto request)
         {

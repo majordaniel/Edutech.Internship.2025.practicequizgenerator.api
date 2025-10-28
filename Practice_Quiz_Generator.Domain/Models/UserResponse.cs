@@ -9,6 +9,7 @@
         public string UserId { get; set; }
         public Quiz Quiz { get; set; }
         public QuizQuestion QuizQuestion { get; set; }
+        public QuestionBank Question { get; set; }
         public QuizOption SelectedOption { get; set; }
         public User User { get; set; }
     }

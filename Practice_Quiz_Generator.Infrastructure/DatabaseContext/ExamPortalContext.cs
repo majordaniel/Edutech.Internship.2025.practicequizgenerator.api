@@ -17,11 +17,14 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
         public DbSet<QuizQuestion> QuizQuestions { get; set; }
         public DbSet<QuizOption> QuizOptions { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<QuestionBank> QuestionBank { get; set; }
+        public DbSet<QuestionBankOption> QuestionBankOptions { get; set; }
         //public DbSet<Content> Contents { get; set; }
         //public DbSet<Quiz> Quizzes { get; set; }
         // public DbSet<Question> Questions { get; set; }
         public DbSet<QuizAttempt> QuizAttempts { get; set; }
         public DbSet<UserResponse> UserResponses { get; set; }
+        //public DbSet<QuizAttempt> QuizAttempts { get; set; }
 
         public ExamPortalContext(DbContextOptions<ExamPortalContext> options) : base(options) { }
 
@@ -37,9 +40,8 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
             modelBuilder.ApplyConfiguration(new LevelConfiguration());
             modelBuilder.ApplyConfiguration(new UserResponseConfiguration());
             //modelBuilder.ApplyConfiguration(new StudentConfiguration());
-            //modelBuilder.ApplyConfiguration(new StudentCourseConfiguration());
+            modelBuilder.ApplyConfiguration(new StudentConfiguration());
             modelBuilder.ApplyConfiguration(new QuizQuestionConfiguration());
-            modelBuilder.ApplyConfiguration(new QuizOptionConfiguration());
 
             foreach (var relationship in modelBuilder.Model.GetEntityTypes()
             .SelectMany(e => e.GetForeignKeys()))
@@ -63,7 +65,7 @@ namespace Practice_Quiz_Generator.Infrastructure.DatabaseContext
     //        .WithMany(c => c.Quizzes)
     //        .HasForeignKey(q => q.ContentId);
 
-    //    modelBuilder.Entity<Question>()
+    //    modelBuilder.Entity<QuestionBank>()
     //        .HasOne(qn => qn.Quiz)
     //        .WithMany(q => q.Questions)
     //        .HasForeignKey(qn => qn.QuizId);
