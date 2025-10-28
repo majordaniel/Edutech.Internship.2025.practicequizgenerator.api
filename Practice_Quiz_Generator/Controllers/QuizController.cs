@@ -70,6 +70,23 @@ namespace Practice_Quiz_Generator.Controllers
             return Ok( result);
         }
 
+        [HttpPost("submitQuiz")]
+        public async Task<IActionResult> SubmitQuiz([FromBody] QuizSubmissionRequestDto request)
+        {
+            var result = await _quizService.QuizSubmitAsync(request);
+            return Ok(result);
+        }
+
+        [HttpGet("results/{quizId}")]
+        public async Task<IActionResult> GetQuizResults(string quizId, [FromQuery] string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return BadRequest("UserId is required");
+
+            var result = await _quizService.GetQuizResultsAsync(quizId, userId);
+            return Ok(result);
+        }
+
         [HttpGet("{quizId}/details")]
         public async Task<IActionResult> GetQuizDetails(string quizId)
         {

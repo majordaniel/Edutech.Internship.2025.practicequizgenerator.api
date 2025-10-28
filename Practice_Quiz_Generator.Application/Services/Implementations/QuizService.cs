@@ -8,6 +8,7 @@ using Practice_Quiz_Generator.Shared.CustomItems.Response;
 using Practice_Quiz_Generator.Shared.DTOs.Request;
 using Practice_Quiz_Generator.Shared.DTOs.Response;
 using System.Text.Json;
+using System.Linq;
 using System.Net;
 
 namespace Practice_Quiz_Generator.Application.Services.Implementations
@@ -409,6 +410,166 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
             }
         }
 
+        public async Task<StandardResponse<QuizResultsResponseDto>> QuizSubmitAsync(QuizSubmissionRequestDto request)
+        {
+            try
+            {
+                var quiz = await _unitOfWork.QuizRepository.GetQuizWithQuestions(request.QuizId);
+                if (quiz == null)
+                    return StandardResponse<QuizResultsResponseDto>.Failed("Quiz not found");
+
+                var user = await _unitOfWork.UserRepository.FindUserById(request.UserId);
+                if (user == null)
+                    return StandardResponse<QuizResultsResponseDto>.Failed("User not found");
+
+                _unitOfWork.UserRepository.AttachAsUnchanged(user);
+
+                // Check if already attempted (optional)
+                var existingAttempt = await _unitOfWork.QuizAttemptRepository.GetAttemptByQuizAndUserAsync(request.QuizId, request.UserId);
+                if (existingAttempt != null)
+                    return StandardResponse<QuizResultsResponseDto>.Failed("Quiz already completed");
+
+                var totalQuestions = quiz.QuizQuestion.Count;
+                var questionResults = new List<QuestionResultsDto>();
+                var userResponses = new List<UserResponse>();
+                int score = 0;
+
+                foreach (var qq in quiz.QuizQuestion)
+                {
+                    var userAnswer = request.Answers.FirstOrDefault(a => a.QuizQuestionId == qq.Id);
+                    if (userAnswer == null)
+                        return StandardResponse<QuizResultsResponseDto>.Failed($"Missing answer for question {qq.Id}");
+
+                    var options = qq.QuizOption.ToList();
+                    var selectedIndex = userAnswer.SelectedOptionIndex;
+                    if (selectedIndex < 0 || selectedIndex >= options.Count)
+                        return StandardResponse<QuizResultsResponseDto>.Failed($"Invalid option index for question {qq.Id}");
+
+                    var selectedOption = options[selectedIndex];
+                    bool isCorrect = selectedOption.IsCorrect;
+
+                    if (isCorrect) score++;
+
+                    var correctOption = options.FirstOrDefault(o => o.IsCorrect);
+                    string userText = selectedOption.QuizOptionText;
+                    string correctText = correctOption?.QuizOptionText ?? "";
+
+                    questionResults.Add(new QuestionResultsDto
+                    {
+                        QuizQuestionId = qq.Id,
+                        QuestionText = qq.QuestionText,
+                        IsCorrect = isCorrect,
+                        UserAnswerText = userText,  // Always show what user selected
+                        CorrectAnswerText = !isCorrect ? correctText : null  // Show correct answer only if wrong
+                    });
+
+                    userResponses.Add(new UserResponse
+                    {
+                        IsCorrect = isCorrect,
+                        QuizId = quiz.Id,
+                        QuizQuestionId = qq.Id,
+                        SelectedOptionId = selectedOption.Id,
+                        UserId = request.UserId,
+                        Quiz = quiz,
+                        QuizQuestion = qq,
+                        SelectedOption = selectedOption,
+                        User = user
+                    });
+                }
+
+                double percentage = totalQuestions > 0 ? (double)score / totalQuestions * 100 : 0;
+
+                var attempt = new QuizAttempt
+                {
+                    QuizId = quiz.Id,
+                    UserId = request.UserId,
+                    Score = score,
+                    TimeSpent = request.TimeSpent,
+                    Answer = JsonSerializer.Serialize(request.Answers),  // Serialize for storage
+                    Quiz = quiz,
+                    User = user
+                };
+
+                await _unitOfWork.QuizAttemptRepository.CreateAsync(attempt);
+                await _unitOfWork.UserResponseRepository.CreateBulkAsync(userResponses);
+                await _unitOfWork.SaveChangesAsync();
+
+                // Update quiz as completed (optional)
+                quiz.IsCompleted = true;
+                quiz.TimeSpent = request.TimeSpent;
+                await _unitOfWork.SaveChangesAsync();
+
+                var results = new QuizResultsResponseDto
+                {
+                    Score = score,
+                    Percentage = percentage,
+                    TotalQuestions = totalQuestions,
+                    TimeSpent = request.TimeSpent,
+                    QuestionResults = questionResults
+                };
+
+                return StandardResponse<QuizResultsResponseDto>.Success("Quiz submitted successfully", results);
+            }
+            catch (Exception ex)
+            {
+                return StandardResponse<QuizResultsResponseDto>.Failed(ex.Message);
+            }
+        }
+
+        public async Task<StandardResponse<QuizResultsResponseDto>> GetQuizResultsAsync(string quizId, string userId)
+        {
+            try
+            {
+                var attempt = await _unitOfWork.QuizAttemptRepository.GetAttemptByQuizAndUserAsync(quizId, userId);
+                if (attempt == null)
+                    return StandardResponse<QuizResultsResponseDto>.Failed("No results found for this quiz and user");
+
+                var responses = await _unitOfWork.UserResponseRepository.GetResponsesByQuizAndUserAsync(quizId, userId);
+                if (responses == null || !responses.Any())
+                    return StandardResponse<QuizResultsResponseDto>.Failed("No detailed responses found");
+
+                var quiz = await _unitOfWork.QuizRepository.GetQuizWithQuestions(quizId);
+                if (quiz == null)
+                    return StandardResponse<QuizResultsResponseDto>.Failed("Quiz not found");
+
+                var totalQuestions = quiz.QuizQuestion.Count;
+                var questionResults = new List<QuestionResultsDto>();
+
+                foreach (var ur in responses)
+                {
+                    var qq = ur.QuizQuestion;
+                    var correctOption = qq.QuizOption.FirstOrDefault(o => o.IsCorrect);
+                    string userText = ur.SelectedOption?.QuizOptionText ?? "";
+                    string correctText = correctOption?.QuizOptionText ?? "";
+
+                    questionResults.Add(new QuestionResultsDto
+                    {
+                        QuizQuestionId = qq.Id,
+                        QuestionText = qq.QuestionText,
+                        IsCorrect = ur.IsCorrect,
+                        UserAnswerText = userText,  // Always show what user selected
+                        CorrectAnswerText = !ur.IsCorrect ? correctText : null  // Show correct answer only if wrong
+                    });
+                }
+
+                double percentage = totalQuestions > 0 ? (double)attempt.Score / totalQuestions * 100 : 0;
+
+                var results = new QuizResultsResponseDto
+                {
+                    Score = attempt.Score,
+                    Percentage = percentage,
+                    TotalQuestions = totalQuestions,
+                    TimeSpent = attempt.TimeSpent,
+                    QuestionResults = questionResults
+                };
+
+                return StandardResponse<QuizResultsResponseDto>.Success("Results retrieved successfully", results);
+            }
+            catch (Exception ex)
+            {
+                return StandardResponse<QuizResultsResponseDto>.Failed(ex.Message);
+            }
+        }
         public async Task<StandardResponse<QuizDetailsResponseDto>> GetQuizDetailsAsync(string quizId, string userId)
         {
             try

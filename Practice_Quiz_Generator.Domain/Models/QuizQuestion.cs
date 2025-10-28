@@ -8,7 +8,7 @@
 
         public Quiz Quiz { get; set; }
         public ICollection<QuizOption> QuizOption { get; set; }
-        //public ICollection<UserResponse> UserResponses { get; set; }
+        public ICollection<UserResponse> UserResponses { get; set; }
     }
 }
 

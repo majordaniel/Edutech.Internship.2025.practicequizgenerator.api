@@ -82,18 +82,22 @@ namespace Practice_Quiz_Generator.Extensions
 
         public static void ConfigureJwt(this IServiceCollection services, IConfiguration configuration)
         {
-            var key = Encoding.UTF8.GetBytes(configuration["JwtSettings:securityKey"]);
+            var securityKey = configuration["JwtSettings:securityKey"];
+            if (string.IsNullOrEmpty(securityKey))
+            {
+                throw new ArgumentException("JWT securityKey is not configured in appsettings.json.");
+            }
+            var key = Encoding.UTF8.GetBytes(securityKey);
 
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = false,
                 ValidateAudience = false,
-                ValidateLifetime = false, 
+                ValidateLifetime = false,
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = configuration["JwtSettings:validIssuer"],
                 ValidAudience = configuration["JwtSettings:validAudience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:securityKey"])),
-                //IssuerSigningKey = new SymmetricSecurityKey(key),
+                IssuerSigningKey = new SymmetricSecurityKey(key),
                 ClockSkew = TimeSpan.Zero
             };
 
