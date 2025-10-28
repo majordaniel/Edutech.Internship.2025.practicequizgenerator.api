@@ -6,10 +6,10 @@ namespace Practice_Quiz_Generator.Shared.DTOs.Response
         public double Percentage { get; set; }
         public int TotalQuestions { get; set; }
         public int TimeSpent { get; set; }
-        public List<QuestionResultDto> QuestionResults { get; set; } = new List<QuestionResultDto>();
+        public List<QuestionResultsDto> QuestionResults { get; set; } = new List<QuestionResultsDto>();
     }
 
-    public class QuestionResultDto
+    public class QuestionResultsDto
     {
         public string QuizQuestionId { get; set; }
         public string QuestionText { get; set; }
