@@ -422,8 +422,8 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                         QuizQuestionId = qq.Id,
                         QuestionText = qq.QuestionText,
                         IsCorrect = isCorrect,
-                        UserAnswerText = !isCorrect ? userText : null,
-                        CorrectAnswerText = !isCorrect ? correctText : null
+                        UserAnswerText = userText,  // Always show what user selected
+                        CorrectAnswerText = !isCorrect ? correctText : null  // Show correct answer only if wrong
                     });
 
                     userResponses.Add(new UserResponse
@@ -510,8 +510,8 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                         QuizQuestionId = qq.Id,
                         QuestionText = qq.QuestionText,
                         IsCorrect = ur.IsCorrect,
-                        UserAnswerText = !ur.IsCorrect ? userText : null,
-                        CorrectAnswerText = !ur.IsCorrect ? correctText : null
+                        UserAnswerText = userText,  // Always show what user selected
+                        CorrectAnswerText = !ur.IsCorrect ? correctText : null  // Show correct answer only if wrong
                     });
                 }
 
