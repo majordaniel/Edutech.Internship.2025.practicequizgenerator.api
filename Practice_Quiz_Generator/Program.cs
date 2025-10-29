@@ -32,16 +32,16 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Apply pending migrations automatically (creates DB if missing)
-/*using (var scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
     var ctx = scope.ServiceProvider.GetRequiredService<ExamPortalContext>();
     ctx.Database.Migrate();
-}*/
+}
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
 //{
-    app.UseSwagger();
+app.UseSwagger();
     app.UseSwaggerUI();
 //}
 
