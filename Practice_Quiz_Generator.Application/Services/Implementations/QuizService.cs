@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Domain.Models;
 using Practice_Quiz_Generator.Infrastructure.Repositories.Interfaces;
@@ -740,6 +741,57 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
                 return StandardResponse<List<QuizResultResponseDto>>.Failed(
                     "An error occurred while retrieving quiz history",
                     (int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<StandardResponse<QuizUserStatsDto>> GetUserQuizStatsAsync(string userId)
+        {
+            try
+            {
+                // 1. Get all attempts for the user (including the quiz total-questions)
+                var attemptsQuery = await _unitOfWork.QuizAttemptRepository
+                    .FindByCondition(a => a.UserId == userId);
+
+                var attempts = await attemptsQuery
+                    .Include(a => a.Quiz)
+                    .OrderByDescending(a => a.DateCreated)   // newest first
+                    .ToListAsync();
+
+                if (!attempts.Any())
+                    return StandardResponse<QuizUserStatsDto>.Success(
+                        "No quiz attempts found", new QuizUserStatsDto());
+
+                // 2. Compute stats
+                int totalQuizzes = attempts.Count;
+
+                // Average score = Σ(score / totalQuestions) / count
+                double avgScore = attempts.Average(a =>
+                {
+                    int totalQ = a.Quiz?.QuizQuestion?.Count ?? 1; // safety
+                    return (double)a.Score / totalQ * 100;
+                });
+
+                // Last quiz score (most recent attempt)
+                var lastAttempt = attempts.First();
+                int lastTotalQ = lastAttempt.Quiz?.QuizQuestion?.Count ?? 1;
+                double lastScore = (double)lastAttempt.Score / lastTotalQ * 100;
+
+                // Average time spent
+                double avgTime = attempts.Average(a => a.TimeSpent);
+
+                var stats = new QuizUserStatsDto
+                {
+                    TotalQuizzes      = totalQuizzes,
+                    AverageScore      = Math.Round(avgScore, 2),
+                    LastQuizScore     = Math.Round(lastScore, 2),
+                    AverageTimeSpent  = Math.Round(avgTime, 2)
+                };
+
+                return StandardResponse<QuizUserStatsDto>.Success("Stats retrieved", stats);
+            }
+            catch (Exception ex)
+            {
+                return StandardResponse<QuizUserStatsDto>.Failed(ex.Message);
             }
         }
 

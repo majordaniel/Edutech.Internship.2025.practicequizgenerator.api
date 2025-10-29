@@ -17,8 +17,8 @@ namespace Practice_Quiz_Generator.Domain.Models
         public string CorrectAnswer { get; set; }
         public string Source { get; set; }
 
-//         public string CourseId { get; set; }          
-//         public Course Course { get; set; }
+        public string CourseId { get; set; }          
+        public Course Course { get; set; }
 
 //         public ICollection<QuizOption>? Option { get; set; }
 //     }

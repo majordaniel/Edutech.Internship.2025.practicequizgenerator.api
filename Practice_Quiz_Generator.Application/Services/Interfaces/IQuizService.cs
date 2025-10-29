@@ -19,5 +19,7 @@ namespace Practice_Quiz_Generator.Application.Services.Interfaces
         Task<StandardResponse<QuizResultResponseDto>> SubmitQuizAsync(SubmitQuizRequestDto request, string userId);
         Task<StandardResponse<List<QuizResultResponseDto>>> GetQuizHistoryAsync(string userId);
 
+        Task<StandardResponse<QuizUserStatsDto>> GetUserQuizStatsAsync(string userId);
+
     }
 }

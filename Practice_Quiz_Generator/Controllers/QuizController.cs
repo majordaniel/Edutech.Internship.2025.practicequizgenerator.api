@@ -3,6 +3,8 @@ using Practice_Quiz_Generator.Application.ServiceConfiguration.MappingExtensions
 using Practice_Quiz_Generator.Application.Services.Interfaces;
 using Practice_Quiz_Generator.Shared.DTOs;
 using Practice_Quiz_Generator.Shared.DTOs.Request;
+using Practice_Quiz_Generator.Shared.DTOs.Response;
+using Practice_Quiz_Generator.Domain.Models;
 using System.Security.Claims;
 
 namespace Practice_Quiz_Generator.Controllers
@@ -171,6 +173,19 @@ namespace Practice_Quiz_Generator.Controllers
                 _logger.LogError(ex, "Error getting quiz history");
                 return StatusCode(500, new { message = "An internal server error occurred" });
             }
+        }
+
+        [HttpGet("stats")]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> GetUserStats([FromQuery] string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return BadRequest("userId is required");
+
+            var response = await _quizService.GetUserQuizStatsAsync(userId);
+            return response.Succeeded
+                ? Ok(response)
+                : BadRequest(response);
         }
 
     }

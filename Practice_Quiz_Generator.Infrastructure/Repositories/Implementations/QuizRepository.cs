@@ -3,6 +3,8 @@ using Practice_Quiz_Generator.Domain.Models;
 using Practice_Quiz_Generator.Infrastructure.DatabaseContext;
 using Practice_Quiz_Generator.Infrastructure.Repositories.Implementations;
 using Practice_Quiz_Generator.Infrastructure.Repositories.Interfaces;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace Practice_Quiz_Generator.Infrastructure.Repositories.Implementations
 {
@@ -69,4 +71,13 @@ public class QuizAttemptRepository : RepositoryBase<QuizAttempt>, IQuizAttemptRe
                 .ThenInclude(q => q.QuizQuestion)
             .FirstOrDefaultAsync(qa => qa.Id == attemptId);
     }
+
+    public async Task<QuizAttempt> GetAttemptByQuizAndUserAsync(string quizId, string userId)
+    {
+        return await _context.QuizAttempts
+            .FirstOrDefaultAsync(qa => qa.QuizId == quizId && qa.UserId == userId);
+    }
+
+    public Task<IQueryable<QuizAttempt>> FindByCondition(Expression<Func<QuizAttempt, bool>> expression)
+        => Task.FromResult(_context.Set<QuizAttempt>().Where(expression));
 }
