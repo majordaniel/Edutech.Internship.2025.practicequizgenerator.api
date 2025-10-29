@@ -80,7 +80,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
 
         public Task<string> GenerateEmailConfirmationLinkAsync(string email, string token, string scheme)
         {
-            var baseUrl = "http://apppracticequiz.runasp.net/api/auth/confirmemail";
+            var baseUrl = "https://edutechquizapp.duckdns.org/api/auth/confirmemail";
             //var encodedToken = WebUtility.UrlEncode(token);
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
@@ -89,7 +89,7 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
 
         public Task<string> GeneratePasswordResetLinkAsync(string email, string token, string scheme)
         {
-            var baseUrl = "http://apppracticequiz.runasp.net/api/auth/resetpassword";
+            var baseUrl = "https://edutechquizapp.duckdns.org/api/auth/resetpassword";
             var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
             return Task.FromResult($"{scheme}://{baseUrl}?email={email}&token={encodedToken}");
