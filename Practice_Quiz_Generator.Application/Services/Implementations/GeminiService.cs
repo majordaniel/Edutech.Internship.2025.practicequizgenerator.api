@@ -13,10 +13,10 @@ namespace Practice_Quiz_Generator.Application.Services.Implementations
         public GeminiService(HttpClient httpClient, IConfiguration config)
         {
             _httpClient = httpClient;
-            _apiKey = config.GetSection("LLMSettings")["ApiKey"];
+           // _apiKey = config.GetSection("LLMSettings")["ApiKey"];
 
-            if (string.IsNullOrWhiteSpace(_apiKey))
-                throw new InvalidOperationException("Gemini API key is missing. Please check LLMSettings:ApiKey in configuration.");
+           // if (string.IsNullOrWhiteSpace(_apiKey))
+           //     throw new InvalidOperationException("Gemini API key is missing. Please check LLMSettings:ApiKey in configuration.");
         }
 
 

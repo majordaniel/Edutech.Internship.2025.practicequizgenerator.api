@@ -14,7 +14,10 @@ builder.Services.AddAutoMapper(cfg => { },
 );
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureCors();
-builder.Services.AddHttpClient<IGeminiService, GeminiService>();
+//builder.Services.AddHttpClient<IGeminiService, GeminiService>();
+builder.Services.AddHttpClient<GitHubModelsService>();
+builder.Services.AddScoped<IGeminiService, GitHubGeminiAdapter>();
+builder.Services.AddScoped<ITheoryGradingService, TheoryGradingService>();
 builder.Services.ConfigureJwt(builder.Configuration);
 
 
